@@ -1,0 +1,3 @@
+const services=['Web Development','UI/UX Design','React Development']
+function Services(){return <section className="mx-auto max-w-7xl px-6 py-16"><p className="text-sm font-semibold uppercase tracking-widest text-cyan-400">Services</p><h1 className="mt-3 text-4xl font-black sm:text-5xl">Xizmatlar</h1><div className="mt-10 grid gap-6 md:grid-cols-3">{services.map((service,i)=><div key={service} className="rounded-2xl border border-white/10 bg-white/5 p-7"><div className="text-3xl font-black text-cyan-400">0{i+1}</div><h2 className="mt-6 text-2xl font-bold">{service}</h2><p className="mt-3 text-slate-400">Professional va responsive yechimlar yaratamiz.</p></div>)}</div></section>}
+export default Services

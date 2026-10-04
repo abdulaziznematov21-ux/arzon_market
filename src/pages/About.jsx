@@ -1,0 +1,2 @@
+function About(){return <section className="mx-auto max-w-7xl px-6 py-16"><p className="text-sm font-semibold uppercase tracking-widest text-cyan-400">About</p><h1 className="mt-3 text-4xl font-black sm:text-5xl">Biz haqimizda</h1><p className="mt-6 max-w-3xl text-lg leading-8 text-slate-400">Bu sahifa React komponentlari va React Router DOM bilan ishlashni o‘rganish uchun tayyorlangan. Har bir sahifa alohida faylda joylashgan.</p></section>}
+export default About

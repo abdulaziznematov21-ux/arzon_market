@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow private user routes
+Disallow: /orders/
+Disallow: /cart
+
+# Sitemap location
+Sitemap: https://arzon-market.vercel.app/sitemap.xml

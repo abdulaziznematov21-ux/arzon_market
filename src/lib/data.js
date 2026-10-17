@@ -1,241 +1,1770 @@
-// ---------------------------------------------------------------------------
-// ArzonMarket catalog data layer.
-// Generates a large (~100,000 item) deterministic product catalog at module
-// load so the UI always has real content to filter / paginate / search,
-// the same way the real site would be backed by a database.
-// ---------------------------------------------------------------------------
+import { generateProductSvg } from "./svgGenerator";
 
-export const CITIES = [
-  "Toshkent", "Samarqand", "Buxoro", "Andijon", "Namangan", "Farg'ona",
-  "Qarshi", "Nukus", "Xiva", "Urganch", "Jizzax", "Guliston", "Termiz", "Navoiy",
+/**
+ * =====================================================================
+ * 9 TA ASOSIY KATEGORIYA (UZUM MARKET USLUBIDA)
+ * =====================================================================
+ */
+export const GROUPS = {
+  "Telefon va aksessuarlar": [
+    "Smartfonlar",
+    "Quloqchinlar",
+    "Aqlli soatlar",
+    "Zaryadlash qurilmalari",
+    "G'ilof va himoya oynalari",
+    "Powerbanklar"
+  ],
+  "Texnika & Kompyuterlar": [
+    "Noutbuklar",
+    "Maishiy texnika",
+    "Changyutgichlar",
+    "Televizorlar",
+    "Oshxona texnikasi",
+    "Fenlar va go'zallik texnikasi"
+  ],
+  "Oziq-ovqat": [
+    "Meva va sabzavotlar",
+    "Sut, pishloq va tuxum",
+    "Go'sht va parranda",
+    "Shirinliklar va shokolad",
+    "Ichimliklar va sharbatlar",
+    "Yog' va baqqollik"
+  ],
+  "Kiyim va poyabzal": [
+    "Krossovkalar",
+    "Erkaklar kiyimi",
+    "Ayollar kiyimi",
+    "Ustki kiyim va kurtkalar",
+    "Aksessuarlar va kamarlar"
+  ],
+  "Sport va fitnes": [
+    "Gantellar va og'irliklar",
+    "Fitnes gilamchalari (karemat)",
+    "Sport sumkalari",
+    "To'plar va aksessuarlar",
+    "Mashg'ulot anjomlari"
+  ],
+  "Go‘zallik va salomatlik": [
+    "Yuz parvarishi",
+    "Parfyumeriya",
+    "Soch parvarishi",
+    "Tana gigiyenasi",
+    "Dekorativ kosmetika"
+  ],
+  "Ro‘zg‘or buyumlari": [
+    "Oshxona anjomlari",
+    "Kir yuvish vositalari",
+    "Idish-tovoqlar",
+    "Tozalash vositalari",
+    "Uy to'qimachiligi"
+  ],
+  "Bolalar olami": [
+    "O'yinchoqlar",
+    "Konstruktorlar",
+    "Bolalar parvarishi",
+    "Rivojlantiruvchi o'yinlar",
+    "Bolalar aravachalari"
+  ],
+  "Avtotovarlar & Asboblar": [
+    "Video qayd etgichlar",
+    "Avto aksessuarlar",
+    "Elektr asboblar",
+    "Qo'l asboblari",
+    "Avto tozalash vositalari"
+  ]
+};
+
+export const PROMOS = {
+  ARZON2026: { code: "ARZON2026", discount: 30000, minOrder: 100000, label: "30 000 so'm maxsus chegirma" },
+  BAHOR50: { code: "BAHOR50", discount: 50000, minOrder: 250000, label: "50 000 so'm bahorgi mega chegirma" },
+  SUPER10: { code: "SUPER10", discount: 20000, minOrder: 80000, label: "20 000 so'm super aksiya" },
+  TEZ20: { code: "TEZ20", discount: 20000, minOrder: 70000, label: "20 000 so'm tezkor yetkazish kodi" },
+  YANGI15: { code: "YANGI15", discount: 15000, minOrder: 50000, label: "15 000 so'm yangi mijozlar uchun" },
+};
+
+/**
+ * =====================================================================
+ * UZUM MARKET USLUBIDAGI MAHSULOTLAR RO'YXATI (TOZA MASSIV)
+ * =====================================================================
+ * Eslatma:
+ * Har bir mahsulot ob'ektida `image` maydoni mavjud.
+ * Uzum Market'dan "Copy image address" qilib olgan linklaringizni
+ * (`https://images.uzum.uz/...`) to'g'ridan-to'g'ri `image` maydoniga
+ * joylashtirishingiz mumkin.
+ * Hozirda esa 100% ishlaydigan, tekshirilgan Unsplash rasmlari qo'yilgan.
+ * =====================================================================
+ */
+export const PRODUCTS = [
+  // ===================================================================
+  // 1. TELEFON VA AKSESSUARLAR
+  // ===================================================================
+  {
+    id: 1,
+    title: "Smartfon Apple iPhone 15 Pro Max 256GB Natural Titanium",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Smartfonlar",
+    brand: "Apple",
+    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80"],
+    price: 15499000,
+    old: 17200000,
+    off: 10,
+    monthly: 1690000,
+    rating: 4.9,
+    reviews: 428,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "ARZON2026",
+    promoDiscount: 30000,
+    description: "Rasmiy IMEI ro'yxatidan o'tgan, 12 oylik to'liq kafolat, original qadoq va tezkor bepul yetkazib berish."
+  },
+  {
+    id: 2,
+    title: "Smartfon Samsung Galaxy S24 Ultra 12GB/512GB Titanium Gray",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Smartfonlar",
+    brand: "Samsung",
+    image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=600&q=80"],
+    price: 14890000,
+    old: 16900000,
+    off: 12,
+    monthly: 1620000,
+    rating: 4.9,
+    reviews: 312,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Galaxy AI sun'iy intellekt funksiyalari, 200MP kamera va o'rnatilgan S-Pen stilus."
+  },
+  {
+    id: 3,
+    title: "Smartfon Xiaomi Redmi Note 13 Pro+ 5G 12GB/512GB Midnight Black",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Smartfonlar",
+    brand: "Xiaomi",
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80"],
+    price: 4690000,
+    old: 5400000,
+    off: 13,
+    monthly: 510000,
+    rating: 4.8,
+    reviews: 580,
+    delivery: "tomorrow",
+    badge: "Xit tovar",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "200 MP ultra tiniq kamera OIS bilan, 120W giper zaryadlash 19 daqiqada 100% gacha."
+  },
+  {
+    id: 4,
+    title: "Simsiz quloqchinlar Apple AirPods Pro 2 MagSafe (USB-C) ANC",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Quloqchinlar",
+    brand: "Apple",
+    image: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=600&q=80"],
+    price: 2950000,
+    old: 3500000,
+    off: 16,
+    monthly: 320000,
+    rating: 4.9,
+    reviews: 820,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "ARZON2026",
+    promoDiscount: 30000,
+    description: "H2 chipi, faol shovqinni 2 barobar ko'proq pasaytirish va moslashuvchan audio."
+  },
+  {
+    id: 5,
+    title: "Aqlli soat Apple Watch Ultra 2 GPS + Cellular 49mm Titanium",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Aqlli soatlar",
+    brand: "Apple",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80"],
+    price: 9990000,
+    old: 11500000,
+    off: 13,
+    monthly: 1080000,
+    rating: 5.0,
+    reviews: 145,
+    delivery: "fast",
+    badge: "Premium",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Aviatsiya darajasidagi titan korpus, 3000 nit yorqinlikdagi displey va 72 soatgacha batareya."
+  },
+  {
+    id: 6,
+    title: "Tezkor zaryadlash adapteri Baseus GaN5 Pro 65W Fast Charger (3 port)",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Zaryadlash qurilmalari",
+    brand: "Baseus",
+    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=80"],
+    price: 245000,
+    old: 320000,
+    off: 23,
+    monthly: 27000,
+    rating: 4.8,
+    reviews: 940,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "GaN 5-avlod yarimo'tkazgich texnologiyasi. Noutbuk, planshet va telefonlarni bir vaqtda quvvatlaydi."
+  },
+  {
+    id: 7,
+    title: "Tezkor tarmoq zaryadlash adapteri Ugreen 100W GaN 4 portli USB-C",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "Zaryadlash qurilmalari",
+    brand: "Ugreen",
+    image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=600&q=80"],
+    price: 490000,
+    old: 620000,
+    off: 21,
+    monthly: 53000,
+    rating: 4.9,
+    reviews: 320,
+    delivery: "tomorrow",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Power Delivery 3.0 va QC 4.0 protokollari bilan jihozlangan universal zaryadlagich."
+  },
+  {
+    id: 8,
+    title: "iPhone 15 Pro Max uchun silikon shaffof g'ilof MagSafe bilan",
+    category: "Telefon va aksessuarlar",
+    group: "Telefon va aksessuarlar",
+    sub: "G'ilof va himoya oynalari",
+    brand: "Apple",
+    image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=600&q=80"],
+    price: 65000,
+    old: 95000,
+    off: 31,
+    monthly: 7000,
+    rating: 4.7,
+    reviews: 650,
+    delivery: "fast",
+    badge: "Arzon narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Sarg'aymaydigan yuqori sifatli shaffof polikarbonat va mustahkam magnitli MagSafe halqasi."
+  },
+
+  // ===================================================================
+  // 2. TEXNIKA & KOMPYUTERLAR
+  // ===================================================================
+  {
+    id: 9,
+    title: "Noutbuk Apple MacBook Air 13 M2 8GB/256GB Space Gray",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Noutbuklar",
+    brand: "Apple",
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80"],
+    price: 11990000,
+    old: 13500000,
+    off: 11,
+    monthly: 1300000,
+    rating: 5.0,
+    reviews: 320,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "M2 protsessor, 13.6 dyuymli Liquid Retina displey va 18 soatgacha to'xtovsiz ishlash."
+  },
+  {
+    id: 10,
+    title: "O'yin noutbuki ASUS TUF Gaming F15 Core i7 / 16GB / RTX 4060",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Noutbuklar",
+    brand: "Asus",
+    image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80"],
+    price: 13800000,
+    old: 15600000,
+    off: 12,
+    monthly: 1500000,
+    rating: 4.8,
+    reviews: 190,
+    delivery: "tomorrow",
+    badge: "Kiber taklif",
+    promo: "ARZON2026",
+    promoDiscount: 30000,
+    description: "144Hz IPS FHD displey, NVIDIA GeForce RTX 4060 grafikasi va harbiy darajadagi chidamlilik."
+  },
+  {
+    id: 11,
+    title: "Aqlli robot changyutgich Xiaomi Robot Vacuum S10+ namlab tozalash",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Changyutgichlar",
+    brand: "Xiaomi",
+    image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=600&q=80"],
+    price: 3890000,
+    old: 4600000,
+    off: 15,
+    monthly: 420000,
+    rating: 4.9,
+    reviews: 512,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "4000 Pa kuchli so'rish quvvati, 3D to'siqlarni aylanib o'tish va ikki aylanuvchi nam lattalar."
+  },
+  {
+    id: 12,
+    title: "Elektr choynak Tefal Glass 1.7L zanglamas po'lat va shisha",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Maishiy texnika",
+    brand: "Tefal",
+    image: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=600&q=80"],
+    price: 420000,
+    old: 550000,
+    off: 24,
+    monthly: 46000,
+    rating: 4.8,
+    reviews: 730,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: null,
+    promoDiscount: 0,
+    description: "Zarbalarga chidamli shisha korpus, ko'k LED chiroqli orqa fon va avtomatik o'chish funksiyasi."
+  },
+  {
+    id: 13,
+    title: "Professional soch feni Dyson Supersonic HD08 ionlashtirish bilan",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Fenlar va go'zallik texnikasi",
+    brand: "Dyson",
+    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80"],
+    price: 4950000,
+    old: 5800000,
+    off: 15,
+    monthly: 540000,
+    rating: 4.9,
+    reviews: 290,
+    delivery: "fast",
+    badge: "Premium",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Sochni qizib ketishdan himoya qiluvchi aqlli harorat nazorati va 5 ta magnitli nasadka."
+  },
+  {
+    id: 14,
+    title: "Smart televizor LG 43\" 4K UHD webOS HDR10 Pro sun'iy intellekt",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Televizorlar",
+    brand: "LG",
+    image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=600&q=80"],
+    price: 4350000,
+    old: 5100000,
+    off: 15,
+    monthly: 470000,
+    rating: 4.8,
+    reviews: 180,
+    delivery: "tomorrow",
+    badge: "Katta ekran",
+    promo: "ARZON2026",
+    promoDiscount: 30000,
+    description: "4K Real UHD displey, α5 AI 4K Gen6 protsessori va qulay Magic Remote masofaviy pulti."
+  },
+  {
+    id: 15,
+    title: "Mikroto'lqinli pech Samsung 23L Quick Defrost qora emalli",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Oshxona texnikasi",
+    brand: "Samsung",
+    image: "https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=600&q=80"],
+    price: 1350000,
+    old: 1650000,
+    off: 18,
+    monthly: 147000,
+    rating: 4.8,
+    reviews: 410,
+    delivery: "tomorrow",
+    badge: null,
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Biokeramik antibakterial ichki qoplama, tezkor muzdan tushirish va tejamkor ECO rejimi."
+  },
+  {
+    id: 16,
+    title: "Bug'li dazmol Philips Azur 7000 Series keramik taglik 2800W",
+    category: "Texnika & Kompyuterlar",
+    group: "Texnika & Kompyuterlar",
+    sub: "Maishiy texnika",
+    brand: "Philips",
+    image: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80"],
+    price: 890000,
+    old: 1100000,
+    off: 19,
+    monthly: 97000,
+    rating: 4.9,
+    reviews: 380,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "SteamGlide Elite tagligi, 50 g/daq doimiy bug' va 250 g bug' zarbasi bilan oson dazmollash."
+  },
+
+  // ===================================================================
+  // 3. OZIQ-OVQAT
+  // ===================================================================
+  {
+    id: 17,
+    title: "Yangi sarxil Ekvador bananlari, 1 kg",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Meva va sabzavotlar",
+    brand: "Fresh Fruit",
+    image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"],
+    price: 19900,
+    old: 26000,
+    off: 23,
+    monthly: 2200,
+    rating: 4.9,
+    reviews: 1420,
+    delivery: "fast",
+    badge: "Kun taklifi",
+    promo: null,
+    promoDiscount: 0,
+    description: "Shirin, to'yimli va tabiiy pishgan sarxil Ekvador bananlari. Har kuni yangi keltiriladi."
+  },
+  {
+    id: 18,
+    title: "Qizil qarsildoq shirin olma Golden, 1 kg",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Meva va sabzavotlar",
+    brand: "Zamin Baraka",
+    image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80"],
+    price: 14500,
+    old: 20000,
+    off: 27,
+    monthly: 1600,
+    rating: 4.8,
+    reviews: 980,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Sershira va vitaminlarga boy saralangan yangi olma hosili."
+  },
+  {
+    id: 19,
+    title: "Pasterizatsiyalangan tabiiy sut Musaffo 3.2%, 1 litr",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Sut, pishloq va tuxum",
+    brand: "Musaffo",
+    image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"],
+    price: 11900,
+    old: 14000,
+    off: 15,
+    monthly: 1300,
+    rating: 4.9,
+    reviews: 2150,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: null,
+    promoDiscount: 0,
+    description: "100% tabiiy sigir suti, sun'iy konservantlarsiz, qulay Tetra Pak qadog'ida."
+  },
+  {
+    id: 20,
+    title: "Qattiq golland pishlog'i President Gouda 45%, 400 g",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Sut, pishloq va tuxum",
+    brand: "President",
+    image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80"],
+    price: 48000,
+    old: 62000,
+    off: 22,
+    monthly: 5200,
+    rating: 4.8,
+    reviews: 730,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Nozik qaymoqli ta'mga ega klassik Gouda pishlog'i nonushta va sendvichlar uchun mukammal."
+  },
+  {
+    id: 21,
+    title: "Saralangan yangi parhez tovuq tuxumi C1, 30 dona qutida",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Sut, pishloq va tuxum",
+    brand: "Dona-Dona",
+    image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=600&q=80"],
+    price: 36000,
+    old: 45000,
+    off: 20,
+    monthly: 3900,
+    rating: 4.9,
+    reviews: 1650,
+    delivery: "fast",
+    badge: "Hamyonbop",
+    promo: null,
+    promoDiscount: 0,
+    description: "Toza, yirik va sarxil C1 toifadagi parhez tovuq tuxumlari qulay himoyalangan qutida."
+  },
+  {
+    id: 22,
+    title: "Tozalangan kungaboqar o'simlik yog'i Zamin Oltin, 5 litr",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Yog' va baqqollik",
+    brand: "Zamin Oltin",
+    image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80"],
+    price: 76000,
+    old: 95000,
+    off: 20,
+    monthly: 8300,
+    rating: 4.8,
+    reviews: 1890,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "TEZ20",
+    promoDiscount: 20000,
+    description: "Birinchi navli hidsiz tozalangan kungaboqar yog'i. Qovurish va pishiriqlar uchun ideal."
+  },
+  {
+    id: 23,
+    title: "Findiqli va sutli shokolad pastasi Nutella, 350 g",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Shirinliklar va shokolad",
+    brand: "Nutella",
+    image: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80"],
+    price: 39000,
+    old: 52000,
+    off: 25,
+    monthly: 4300,
+    rating: 5.0,
+    reviews: 2450,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Afsonaviy Ferrero ta'mi, tanlangan o'rmon yong'og'i va nozik kakao uyg'unligi."
+  },
+  {
+    id: 24,
+    title: "Gazlangan salqin ichimlik Coca-Cola Classic, 1.5L (6 dona blok)",
+    category: "Oziq-ovqat",
+    group: "Oziq-ovqat",
+    sub: "Ichimliklar va sharbatlar",
+    brand: "Coca-Cola",
+    image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=600&q=80"],
+    price: 68000,
+    old: 85000,
+    off: 20,
+    monthly: 7400,
+    rating: 4.9,
+    reviews: 3100,
+    delivery: "fast",
+    badge: "Blok narxi",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Muzdek tetiklantiruvchi original Coca-Cola. Bayramona va oilaviy dasturxonlar uchun tejamkor blok."
+  },
+
+  // ===================================================================
+  // 4. KIYIM VA POYABZAL
+  // ===================================================================
+  {
+    id: 25,
+    title: "Erkaklar sport krossovkasi Nike Air Max 270 Black/White",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Krossovkalar",
+    brand: "Nike",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80"],
+    price: 850000,
+    old: 1100000,
+    off: 22,
+    monthly: 93000,
+    rating: 4.9,
+    reviews: 640,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: "ARZON2026",
+    promoDiscount: 30000,
+    description: "Katta hajmga ega Max Air havo yostig'i, elastik nafas oluvchi yuza va zamonaviy uslub."
+  },
+  {
+    id: 26,
+    title: "Yugurish uchun yumshoq krossovka Adidas Ultraboost Light",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Krossovkalar",
+    brand: "Adidas",
+    image: "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=600&q=80"],
+    price: 990000,
+    old: 1350000,
+    off: 26,
+    monthly: 108000,
+    rating: 4.8,
+    reviews: 420,
+    delivery: "tomorrow",
+    badge: "Super narx",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Yengil Boost granulali taglik energiyani qaytaradi va uzoq masofalarda qulaylik beradi."
+  },
+  {
+    id: 27,
+    title: "Klassik kundalik krossovka New Balance 574 Core Grey",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Krossovkalar",
+    brand: "New Balance",
+    image: "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=600&q=80"],
+    price: 780000,
+    old: 980000,
+    off: 20,
+    monthly: 85000,
+    rating: 4.9,
+    reviews: 580,
+    delivery: "fast",
+    badge: "Mavsum xiti",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Tabiiy zamsh va qalin to'rli material uyg'unligi, ENCAP mustahkam taglik texnologiyasi."
+  },
+  {
+    id: 28,
+    title: "Paxtali qulay xudi kapyushonli va cho'ntakli unisex",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Erkaklar kiyimi",
+    brand: "Zara",
+    image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80"],
+    price: 245000,
+    old: 340000,
+    off: 27,
+    monthly: 27000,
+    rating: 4.8,
+    reviews: 790,
+    delivery: "fast",
+    badge: "Ommabop",
+    promo: null,
+    promoDiscount: 0,
+    description: "100% paxta uch ipli zich mato, kiyishga yoqimli va yuvishda o'z shaklini yo'qotmaydi."
+  },
+  {
+    id: 29,
+    title: "Klassik to'g'ri bichimli jinsi shimi Levi's 501 Original",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Erkaklar kiyimi",
+    brand: "Levi's",
+    image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80"],
+    price: 490000,
+    old: 680000,
+    off: 27,
+    monthly: 53000,
+    rating: 4.9,
+    reviews: 340,
+    delivery: "tomorrow",
+    badge: null,
+    promo: "TEZ20",
+    promoDiscount: 20000,
+    description: "Afsonaviy denim matosi, tugmali qadag'ich va vaqt sinovidan o'tgan to'g'ri bichim."
+  },
+  {
+    id: 30,
+    title: "Bahorgi yengil suv o'tmas demi-mavsumiy kurtka",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Ustki kiyim va kurtkalar",
+    brand: "Colin's",
+    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80"],
+    price: 395000,
+    old: 550000,
+    off: 28,
+    monthly: 43000,
+    rating: 4.7,
+    reviews: 280,
+    delivery: "fast",
+    badge: "Yangi to'plam",
+    promo: null,
+    promoDiscount: 0,
+    description: "Shamol va yomg'irdan himoya qiluvchi membranali mato, yengil va zamonaviy siluet."
+  },
+  {
+    id: 31,
+    title: "100% tabiiy paxtali bazaviy erkaklar futbolkasi to'plami (3 dona)",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Erkaklar kiyimi",
+    brand: "H&M",
+    image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80"],
+    price: 135000,
+    old: 190000,
+    off: 28,
+    monthly: 15000,
+    rating: 4.8,
+    reviews: 1120,
+    delivery: "fast",
+    badge: "3 tasi 1 da",
+    promo: null,
+    promoDiscount: 0,
+    description: "Nafas oluvchi yumshoq tabiiy paxta matosi, kundalik kiyish uchun eng qulay tanlov."
+  },
+  {
+    id: 32,
+    title: "Tabiiy charmdan klassik erkaklar kamari metall to'qa bilan",
+    category: "Kiyim va poyabzal",
+    group: "Kiyim va poyabzal",
+    sub: "Aksessuarlar va kamarlar",
+    brand: "Tommy Hilfiger",
+    image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=600&q=80"],
+    price: 125000,
+    old: 180000,
+    off: 30,
+    monthly: 14000,
+    rating: 4.8,
+    reviews: 410,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Haqiqiy qalin charm, mustahkam metall qulf va klassik qora rang."
+  },
+
+  // ===================================================================
+  // 5. SPORT VA FITNES
+  // ===================================================================
+  {
+    id: 33,
+    title: "Geksagonal rezinali gantellar to'plami, 2 x 5 kg",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Gantellar va og'irliklar",
+    brand: "Torneo",
+    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80"],
+    price: 240000,
+    old: 320000,
+    off: 25,
+    monthly: 26000,
+    rating: 4.9,
+    reviews: 620,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Sirpanmaydigan xromlangan dastak, polni chizilishdan asrovchi sifatli kauchuk qoplama."
+  },
+  {
+    id: 34,
+    title: "Professional yoga va fitnes gilamchasi (karemat) 10mm",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Fitnes gilamchalari (karemat)",
+    brand: "Decathlon",
+    image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=600&q=80"],
+    price: 135000,
+    old: 190000,
+    off: 28,
+    monthly: 15000,
+    rating: 4.8,
+    reviews: 840,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Qalin va yumshoq NBR materiali, tizza va bo'g'imlarga yuklamani kamaytiradi, tasma bilan birga."
+  },
+  {
+    id: 35,
+    title: "Sport zali va sayohat uchun suv o'tmas sig'imli sumka 45L",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Sport sumkalari",
+    brand: "Under Armour",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"],
+    price: 195000,
+    old: 270000,
+    off: 27,
+    monthly: 21000,
+    rating: 4.8,
+    reviews: 490,
+    delivery: "fast",
+    badge: null,
+    promo: "TEZ20",
+    promoDiscount: 20000,
+    description: "Poyabzal uchun alohida ventilyatsiyali bo'lma, mustahkam suv qaytaruvchi Oksford matosi."
+  },
+  {
+    id: 36,
+    title: "Fitnes rezinkalari to'plami (5 xil elastik qarshilik darajasi)",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Mashg'ulot anjomlari",
+    brand: "Demix",
+    image: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80"],
+    price: 59000,
+    old: 85000,
+    off: 30,
+    monthly: 6500,
+    rating: 4.9,
+    reviews: 1350,
+    delivery: "fast",
+    badge: "Arzon narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "100% tabiiy lateks, yirtilishga chidamli, qulay saqlash qopchasi bilan ta'minlangan."
+  },
+  {
+    id: 37,
+    title: "Professional charm futbol to'pi FIFA Pro o'lcham 5",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "To'plar va aksessuarlar",
+    brand: "Nike",
+    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80"],
+    price: 220000,
+    old: 290000,
+    off: 24,
+    monthly: 24000,
+    rating: 4.9,
+    reviews: 570,
+    delivery: "tomorrow",
+    badge: "Original",
+    promo: null,
+    promoDiscount: 0,
+    description: "Termoyelimli choklar, suv singdirmaydi, traektoriyani aniq saqlovchi Aerowsculpt o'yiqlari."
+  },
+  {
+    id: 38,
+    title: "Podshipnikli tezkor sakrash arqoni (skakalka) hisoblagichli",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Mashg'ulot anjomlari",
+    brand: "Puma",
+    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80"],
+    price: 49000,
+    old: 75000,
+    off: 34,
+    monthly: 5400,
+    rating: 4.7,
+    reviews: 690,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "360 daraja tezkor metall podshipnik, chigal bo'lmaydigan po'lat tros 3 metr."
+  },
+  {
+    id: 39,
+    title: "Sport oziq-ovqatlari uchun blender-shaker idishi 700ml BPA Free",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Mashg'ulot anjomlari",
+    brand: "BioTech",
+    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=600&q=80"],
+    price: 55000,
+    old: 80000,
+    off: 31,
+    monthly: 6000,
+    rating: 4.8,
+    reviews: 910,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Zanglamas po'latdan qoruvchi sharikcha, oqib ketishdan to'liq himoyalangan germetik qopqoq."
+  },
+  {
+    id: 40,
+    title: "Tirnalishdan himoyalovchi fitnes va mashg'ulot qo'lqoplari",
+    category: "Sport va fitnes",
+    group: "Sport va fitnes",
+    sub: "Mashg'ulot anjomlari",
+    brand: "Torneo",
+    image: "https://images.unsplash.com/photo-1584466977773-e625c37cdd50?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1584466977773-e625c37cdd50?auto=format&fit=crop&w=600&q=80"],
+    price: 68000,
+    old: 95000,
+    off: 28,
+    monthly: 7500,
+    rating: 4.7,
+    reviews: 320,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Kaft qismida qalin gel qo'shimchasi, nafas oluvchi elastik to'r va bilakni ushlab turuvchi fiksator."
+  },
+
+  // ===================================================================
+  // 6. GO‘ZALLIK VA SALOMATLIK
+  // ===================================================================
+  {
+    id: 41,
+    title: "Yuz zardobi The Ordinary Niacinamide 10% + Zinc 1%, 30 ml",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Yuz parvarishi",
+    brand: "The Ordinary",
+    image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80"],
+    price: 115000,
+    old: 160000,
+    off: 28,
+    monthly: 12500,
+    rating: 4.9,
+    reviews: 1840,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Yuzdagi husnbuzar izlarini yo'qotadi, teshikchalarni toraytiradi va teri yog'lanishini normallashtiradi."
+  },
+  {
+    id: 42,
+    title: "Chuqur namlovchi va tiklovchi yuz kremi CeraVe, 50 ml",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Yuz parvarishi",
+    brand: "CeraVe",
+    image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=600&q=80"],
+    price: 145000,
+    old: 195000,
+    off: 25,
+    monthly: 16000,
+    rating: 4.9,
+    reviews: 950,
+    delivery: "fast",
+    badge: "Dermatologik",
+    promo: null,
+    promoDiscount: 0,
+    description: "3 ta muhim seramid va gialuron kislotasi bilan terining tabiiy himoya to'sig'ini tiklaydi."
+  },
+  {
+    id: 43,
+    title: "Erkaklar parfyum suvi Christian Dior Sauvage EDP, 100 ml",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Parfyumeriya",
+    brand: "Dior",
+    image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80"],
+    price: 1850000,
+    old: 2300000,
+    off: 19,
+    monthly: 200000,
+    rating: 5.0,
+    reviews: 730,
+    delivery: "fast",
+    badge: "Premium",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Sharqona va tetiklantiruvchi kompozitsiya: Kalabriya bergamoti, vanil va yog'ochli notalar."
+  },
+  {
+    id: 44,
+    title: "Sochni tiklovchi keratinli shampun va balzam L'Oreal Elseve, 400 ml",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Soch parvarishi",
+    brand: "L'Oreal",
+    image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=600&q=80"],
+    price: 62000,
+    old: 85000,
+    off: 27,
+    monthly: 6800,
+    rating: 4.8,
+    reviews: 1420,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: null,
+    promoDiscount: 0,
+    description: "Zararlangan va sinuvchan sochlarni ildizidan uchigacha mustahkamlaydi va ipakdek jilva beradi."
+  },
+  {
+    id: 45,
+    title: "Misellyar tozalovchi suv Garnier nozik teri uchun, 400 ml",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Yuz parvarishi",
+    brand: "Garnier",
+    image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80"],
+    price: 49000,
+    old: 68000,
+    off: 28,
+    monthly: 5400,
+    rating: 4.9,
+    reviews: 1890,
+    delivery: "fast",
+    badge: "Ommabop",
+    promo: null,
+    promoDiscount: 0,
+    description: "Makiyajni qizarish va ishqalanishsiz samarali ketkazadi, yuvishni talab qilmaydi."
+  },
+  {
+    id: 46,
+    title: "Namlantiruvchi atlas lab bo'yog'i Maybelline Color Sensational",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Dekorativ kosmetika",
+    brand: "Maybelline",
+    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80"],
+    price: 58000,
+    old: 82000,
+    off: 29,
+    monthly: 6400,
+    rating: 4.8,
+    reviews: 620,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Asal nektari bilan boyitilgan kremdek silliq to'qima, boy va uzoq saqlanuvchi rang."
+  },
+  {
+    id: 47,
+    title: "Premium tana va soch parvarishi spreyi Victoria's Secret, 250 ml",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Tana gigiyenasi",
+    brand: "Victoria's Secret",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80"],
+    price: 135000,
+    old: 185000,
+    off: 27,
+    monthly: 15000,
+    rating: 4.9,
+    reviews: 840,
+    delivery: "fast",
+    badge: "Sevimli",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Romantik vanil va gul nektarlari uyg'unligidagi engil xushbo'y tana mist spreyi."
+  },
+  {
+    id: 48,
+    title: "Tabiiy nefrit toshli yuz massajeri Gua Sha va rolik to'plami",
+    category: "Go‘zallik va salomatlik",
+    group: "Go‘zallik va salomatlik",
+    sub: "Yuz parvarishi",
+    brand: "Bio Beauty",
+    image: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=600&q=80"],
+    price: 45000,
+    old: 70000,
+    off: 35,
+    monthly: 5000,
+    rating: 4.8,
+    reviews: 530,
+    delivery: "fast",
+    badge: "Arzon narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Yuz shishlarini kamaytiradi, qon aylanishini yaxshilaydi va terini taranglashtiradi."
+  },
+
+  // ===================================================================
+  // 7. RO‘ZG‘OR BUYUMLARI
+  // ===================================================================
+  {
+    id: 49,
+    title: "Konsentrlangan suyuq kir yuvish geli Ariel Mountain Spring, 2.6L",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Kir yuvish vositalari",
+    brand: "Ariel",
+    image: "https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&w=600&q=80"],
+    price: 119000,
+    old: 160000,
+    off: 25,
+    monthly: 13000,
+    rating: 4.9,
+    reviews: 1480,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "TEZ20",
+    promoDiscount: 20000,
+    description: "40 marta yuvishga yetadi. Qiyin ketadigan dog'larni sovuq suvda ham 100% ketkazadi."
+  },
+  {
+    id: 50,
+    title: "Idish yuvish suyuqligi Fairy Limon va Yalpiz ekstrakti, 1 litr",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Idish-tovoqlar",
+    brand: "Fairy",
+    image: "https://images.unsplash.com/photo-1585837575652-267c041d77d4?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1585837575652-267c041d77d4?auto=format&fit=crop&w=600&q=80"],
+    price: 24000,
+    old: 32000,
+    off: 25,
+    monthly: 2600,
+    rating: 4.9,
+    reviews: 2980,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Bir tomchisi yog'ni bir zumda eritadi, qo'l terisini quritmaydi va uzoq vaqt tejamkor sarflanadi."
+  },
+  {
+    id: 51,
+    title: "Dezinfeksiyalovchi va tozalovchi universal gel Domestos Ultra, 1L",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Tozalash vositalari",
+    brand: "Domestos",
+    image: "https://images.unsplash.com/photo-1584813470613-5b1c1cad3d69?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1584813470613-5b1c1cad3d69?auto=format&fit=crop&w=600&q=80"],
+    price: 28000,
+    old: 38000,
+    off: 26,
+    monthly: 3100,
+    rating: 4.8,
+    reviews: 1720,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: null,
+    promoDiscount: 0,
+    description: "Mikrob va bakteriyalarni 99.9% yo'q qiladi, ohak va zang qatlamlarini tozalaydi."
+  },
+  {
+    id: 52,
+    title: "Yopishmas marmar qoplamali tova Tefal Unlimited, 28 sm",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Oshxona anjomlari",
+    brand: "Tefal",
+    image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80"],
+    price: 360000,
+    old: 480000,
+    off: 25,
+    monthly: 39000,
+    rating: 4.9,
+    reviews: 620,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Titanium Anti-Scratch chizilmas qoplamasi, Thermo-Signal harorat indikatori."
+  },
+  {
+    id: 53,
+    title: "Oshxona uchun 6 qismli zanglamas po'lat pichoqlar to'plami stendi bilan",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Oshxona anjomlari",
+    brand: "Berghoff",
+    image: "https://images.unsplash.com/photo-1593618998160-e34014e67546?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1593618998160-e34014e67546?auto=format&fit=crop&w=600&q=80"],
+    price: 260000,
+    old: 360000,
+    off: 27,
+    monthly: 28000,
+    rating: 4.8,
+    reviews: 430,
+    delivery: "tomorrow",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Lazer bilan o'tkirlangan yuqori uglerodli zanglamas po'lat, qulay ergonomik tutqichlar."
+  },
+  {
+    id: 54,
+    title: "Kir yuvish uchun mato yumshatgich konditsioner Lenor Bahor, 1.8L",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Kir yuvish vositalari",
+    brand: "Lenor",
+    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80"],
+    price: 45000,
+    old: 60000,
+    off: 25,
+    monthly: 4900,
+    rating: 4.9,
+    reviews: 1140,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Kiyimlarga ajoyib yumshoqlik baxsh etadi, dazmollashni osonlashtiradi va 7 haftagacha yangilik saqlaydi."
+  },
+  {
+    id: 55,
+    title: "Oshxona va dasturxon uchun premium shaffof stakanlar to'plami (6 dona)",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Idish-tovoqlar",
+    brand: "Pasabahce",
+    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80"],
+    price: 89000,
+    old: 120000,
+    off: 25,
+    monthly: 9700,
+    rating: 4.8,
+    reviews: 690,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Qalin shisha, zamonaviy qirrali dizayn, suv va sharbatlar uchun qulay hajm 320 ml."
+  },
+  {
+    id: 56,
+    title: "Oshxona anjomlari va idishlar uchun quritgich-organayzer",
+    category: "Ro‘zg‘or buyumlari",
+    group: "Ro‘zg‘or buyumlari",
+    sub: "Oshxona anjomlari",
+    brand: "Home Style",
+    image: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80"],
+    price: 110000,
+    old: 155000,
+    off: 29,
+    monthly: 12000,
+    rating: 4.7,
+    reviews: 320,
+    delivery: "tomorrow",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Suv yig'uvchi poddonli, zanglamaydigan po'lat ramka, likopcha va stakanlar uchun qulay joylashuv."
+  },
+
+  // ===================================================================
+  // 8. BOLALAR OLAMI
+  // ===================================================================
+  {
+    id: 57,
+    title: "Rivojlantiruvchi ijodiy konstruktor Lego Classic, 484 detal",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "Konstruktorlar",
+    brand: "Lego",
+    image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80"],
+    price: 360000,
+    old: 480000,
+    off: 25,
+    monthly: 39000,
+    rating: 5.0,
+    reviews: 920,
+    delivery: "fast",
+    badge: "Xit savdo",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Bolaning tasavvuri, mantiqiy fikrlashi va mayda motorikasini rivojlantiruvchi yorqin detallar."
+  },
+  {
+    id: 58,
+    title: "Masofadan pult bilan boshqariluvchi tezyurar poyga avtomobili 1:16",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "O'yinchoqlar",
+    brand: "Speed Car",
+    image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=600&q=80"],
+    price: 185000,
+    old: 260000,
+    off: 28,
+    monthly: 20000,
+    rating: 4.8,
+    reviews: 650,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Zaryadlanuvchi akkumulyator, yorituvchi LED faralar va amortizatsiyali mustahkam korpus."
+  },
+  {
+    id: 59,
+    title: "Yumshoq pelush o'yinchoq Katta Ayiqcha, 80 sm",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "O'yinchoqlar",
+    brand: "Teddy",
+    image: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1558060370-d644479cb6f7?auto=format&fit=crop&w=600&q=80"],
+    price: 145000,
+    old: 210000,
+    off: 30,
+    monthly: 16000,
+    rating: 4.9,
+    reviews: 740,
+    delivery: "fast",
+    badge: "Sevimli sovg'a",
+    promo: null,
+    promoDiscount: 0,
+    description: "Gipoallergen to'ldiruvchi, teginish uchun nihoyatda yoqimli yumshoq jun va bayramona bo'yinbog'."
+  },
+  {
+    id: 60,
+    title: "Bolalar uchun yog'och rivojlantiruvchi sensorli Bizon taxtasi",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "Rivojlantiruvchi o'yinlar",
+    brand: "Eco Toys",
+    image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=600&q=80"],
+    price: 165000,
+    old: 230000,
+    off: 28,
+    monthly: 18000,
+    rating: 4.9,
+    reviews: 380,
+    delivery: "tomorrow",
+    badge: "Ekologik",
+    promo: null,
+    promoDiscount: 0,
+    description: "Montessori metodikasi bo'yicha tabiiy yog'ochdan yasalgan intellektual rivojlanish taxtasi."
+  },
+  {
+    id: 61,
+    title: "Chaqaloqlar uchun gigiyenik yumshoq parvarish to'plami",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "Bolalar parvarishi",
+    brand: "Chicco",
+    image: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=600&q=80"],
+    price: 120000,
+    old: 170000,
+    off: 29,
+    monthly: 13000,
+    rating: 4.8,
+    reviews: 490,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Taroq, xavfsiz qaychi va termometrdan iborat yangi tug'ilgan chaqaloqlar uchun zarur to'plam."
+  },
+  {
+    id: 62,
+    title: "Yengil yig'iluvchi yozgi bolalar aravachasi (kolyaska)",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "Bolalar aravachalari",
+    brand: "Baby Trend",
+    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80"],
+    price: 890000,
+    old: 1200000,
+    off: 25,
+    monthly: 97000,
+    rating: 4.8,
+    reviews: 210,
+    delivery: "tomorrow",
+    badge: "Ommabop",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Bitta qo'l bilan buklanuvchi alyuminiy shassi, quyoshdan saqlovchi chuqur soyabon."
+  },
+  {
+    id: 63,
+    title: "Bolalar uchun rasm chizish va ijod to'plami chamadonda, 144 bo'lak",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "Rivojlantiruvchi o'yinlar",
+    brand: "Art Kids",
+    image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=600&q=80"],
+    price: 95000,
+    old: 140000,
+    off: 32,
+    monthly: 10500,
+    rating: 4.8,
+    reviews: 820,
+    delivery: "fast",
+    badge: "Arzon narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "Flomasterlar, akvarel bo'yoqlari, rangli qalamlar va moyli pastellar to'liq to'plami."
+  },
+  {
+    id: 64,
+    title: "Hot Wheels original metall mashinalar to'plami, 5 dona",
+    category: "Bolalar olami",
+    group: "Bolalar olami",
+    sub: "O'yinchoqlar",
+    brand: "Hot Wheels",
+    image: "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?auto=format&fit=crop&w=600&q=80"],
+    price: 110000,
+    old: 150000,
+    off: 26,
+    monthly: 12000,
+    rating: 4.9,
+    reviews: 1340,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: null,
+    promoDiscount: 0,
+    description: "Mattel original litsenziyali quyma metall korpusli tezyurar poyga modellari to'plami."
+  },
+
+  // ===================================================================
+  // 9. AVTOTAVARLAR & ASBOBLAR
+  // ===================================================================
+  {
+    id: 65,
+    title: "Professional akkumulyatorli shurupavyort Bosch GSR 18V-50 (2 ta batareya)",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Elektr asboblar",
+    brand: "Bosch",
+    image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80"],
+    price: 1450000,
+    old: 1850000,
+    off: 21,
+    monthly: 158000,
+    rating: 4.9,
+    reviews: 410,
+    delivery: "fast",
+    badge: "Professional",
+    promo: "BAHOR50",
+    promoDiscount: 50000,
+    description: "Cho'tkasiz kuchli motor (Brushless), 50 Nm aylanuvchi moment va metall tez qisuvchi patron."
+  },
+  {
+    id: 66,
+    title: "Burchakli silliqlash mashinasi (bolgarka) Makita 125mm 840W",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Elektr asboblar",
+    brand: "Makita",
+    image: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=600&q=80"],
+    price: 680000,
+    old: 850000,
+    off: 20,
+    monthly: 74000,
+    rating: 4.8,
+    reviews: 590,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Labirint changdan himoya tizimi, qulay ingichka korpus va 11000 aylanish/daqiqa tezlik."
+  },
+  {
+    id: 67,
+    title: "4K Ultra HD avtomobil video qayd etgichi 70mai Dash Cam A800S",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Video qayd etgichlar",
+    brand: "70mai",
+    image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=600&q=80"],
+    price: 1190000,
+    old: 1450000,
+    off: 17,
+    monthly: 130000,
+    rating: 4.9,
+    reviews: 730,
+    delivery: "fast",
+    badge: "Xit tovar",
+    promo: "ARZON2026",
+    promoDiscount: 30000,
+    description: "Sony IMX415 sensori, o'rnatilgan GPS, ADAS haydovchiga ko'mak tizimi va tungi tiniq tasvir."
+  },
+  {
+    id: 68,
+    title: "108 qismli professional xrom-vanadiy kalitlar va asboblar to'plami",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Qo'l asboblari",
+    brand: "Ingco",
+    image: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=600&q=80"],
+    price: 590000,
+    old: 780000,
+    off: 24,
+    monthly: 64000,
+    rating: 4.8,
+    reviews: 620,
+    delivery: "tomorrow",
+    badge: "To'liq to'plam",
+    promo: "TEZ20",
+    promoDiscount: 20000,
+    description: "Cr-V xrom-vanadiy qotishmasi, mustahkam treщyotkalar va zarbaga chidamli plastik keys."
+  },
+  {
+    id: 69,
+    title: "Magnitli avtomobil telefon ushlagichi havo panjarasiga o'rnatiladigan",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Avto aksessuarlar",
+    brand: "Baseus",
+    image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80"],
+    price: 49000,
+    old: 75000,
+    off: 34,
+    monthly: 5400,
+    rating: 4.9,
+    reviews: 1450,
+    delivery: "fast",
+    badge: "Super narx",
+    promo: null,
+    promoDiscount: 0,
+    description: "6 ta kuchli neodim magniti, chuqur chuqurchalarda ham telefonni mustahkam ushlab turadi."
+  },
+  {
+    id: 70,
+    title: "Avtomobil salonini tozalash uchun portativ changyutgich 120W",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Avto tozalash vositalari",
+    brand: "Xiaomi",
+    image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=600&q=80"],
+    price: 185000,
+    old: 260000,
+    off: 28,
+    monthly: 20000,
+    rating: 4.7,
+    reviews: 580,
+    delivery: "fast",
+    badge: null,
+    promo: null,
+    promoDiscount: 0,
+    description: "Yuviluvchi HEPA filtr, 6000 Pa so'rish kuchi va tor joylarni tozalash uchun nasadkalar."
+  },
+  {
+    id: 71,
+    title: "Avtomobil kuzovi uchun faol ko'pikli shampun va mikrofibra gubka",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Avto tozalash vositalari",
+    brand: "Grass",
+    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=600&q=80"],
+    price: 52000,
+    old: 75000,
+    off: 30,
+    monthly: 5700,
+    rating: 4.8,
+    reviews: 820,
+    delivery: "fast",
+    badge: "Hamyonbop",
+    promo: null,
+    promoDiscount: 0,
+    description: "Konsentrlangan avtoshampun, avtomobil bo'yog'iga ziyon yetkazmasdan yaltiratadi."
+  },
+  {
+    id: 72,
+    title: "Avtomobil g'ildiraklari uchun simsiz elektr kompressor va manometr",
+    category: "Avtotovarlar & Asboblar",
+    group: "Avtotovarlar & Asboblar",
+    sub: "Avto aksessuarlar",
+    brand: "70mai",
+    image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80",
+    images: ["https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=600&q=80"],
+    price: 340000,
+    old: 450000,
+    off: 24,
+    monthly: 37000,
+    rating: 4.9,
+    reviews: 430,
+    delivery: "tomorrow",
+    badge: "Xit savdo",
+    promo: "SUPER10",
+    promoDiscount: 20000,
+    description: "Raqamli bosim ko'rsatkichli displey, belgilangan bosimda avtomatik to'xtash va chiroq funksiyasi."
+  }
 ];
 
-// material symbol name per top-level group
-export const GROUPS = {
-  "Oziq-ovqat va ichimliklar": ["Meva va sabzavotlar", "Ichimliklar", "Sut va pishloq mahsulotlari", "Non va qandolat", "Go'sht va parranda", "Choy, qahva va shirinliklar", "Konservalar va yarim tayyor"],
-  "Telefon va aksessuarlar": ["Smartfonlar", "Quvvatlagichlar", "Kabellar", "Himoya oynalar", "Telefon qoplamalari", "Simsiz quloqchinlar", "Powerbanklar"],
-  "Kompyuter va maishiy texnika": ["Noutbuklar", "Monitorlar", "Klaviatura va sichqonlar", "Televizorlar", "Kir yuvish mashinalari", "Muzlatgichlar", "Konditsionerlar"],
-  "Kiyim va poyabzal": ["Erkaklar kiyimi", "Ayollar kiyimi", "Krossovkalar", "Botinkalar", "Sport kiyimlari", "Ko'ylak va kostyumlar"],
-  "Bolalar olami": ["O'yinchoqlar", "Bolalar kiyimi", "Chaqaloq buyumlari", "Maktab buyumlari"],
-  "Ro'zg'or buyumlari": ["Oshxona anjomlari", "Idish-tovoqlar", "Tozalash vositalari", "Mebel", "Yorug'lik jihozlari"],
-  "Go'zallik va salomatlik": ["Parfyumeriya", "Dekorativ kosmetika", "Soch parvarishi", "Vitamin va BAD"],
-  "Sport va dam olish": ["Fitnes jihozlari", "Velosipedlar", "Turizm buyumlari", "Sport kiyimlari"],
-  "Avtotovarlar": ["Avto aksessuarlar", "Moy va texnik suyuqliklar", "Audio-video texnika"],
-  "Uy hayvonlari": ["It ovqati", "Mushuk ovqati", "Hayvonlar uchun aksessuarlar"],
-};
-
-// icon shown in nav / category circles — Material Symbols names
-export const GROUP_ICON = {
-  "Oziq-ovqat va ichimliklar": "nutrition",
-  "Telefon va aksessuarlar": "smartphone",
-  "Kompyuter va maishiy texnika": "devices",
-  "Kiyim va poyabzal": "checkroom",
-  "Bolalar olami": "toys",
-  "Ro'zg'or buyumlari": "chair",
-  "Go'zallik va salomatlik": "spa",
-  "Sport va dam olish": "fitness_center",
-  "Avtotovarlar": "directions_car",
-  "Uy hayvonlari": "pets",
-};
-// which groups show directly in the top nav bar (rest fold into "Yana...")
-export const NAV_GROUPS = ["Oziq-ovqat va ichimliklar", "Telefon va aksessuarlar", "Kompyuter va maishiy texnika", "Kiyim va poyabzal", "Bolalar olami", "Ro'zg'or buyumlari", "Go'zallik va salomatlik"];
-
-const BRANDS = {
-  "Oziq-ovqat va ichimliklar": ["Musaffo", "Makfa", "Coca-Cola", "Nestle", "Zamin Oltin", "Dona-Dona", "President", "Olivie", "Barakat", "Mareven", "Chimyon bulog'i", "Nutella"],
-  "Telefon va aksessuarlar": ["Baseus", "Anker", "Ugreen", "Apple", "Samsung", "Xiaomi", "JBL", "Hoco", "Remax", "Belkin"],
-  "Kompyuter va maishiy texnika": ["Lenovo", "HP", "Dell", "Asus", "Samsung", "LG", "Artel", "Bosch", "Midea", "Xiaomi"],
-  "Kiyim va poyabzal": ["Lc Waikiki", "Zara", "H&M", "Nike", "Adidas", "Puma", "Reebok", "Collezione", "Oxocha"],
-  "Bolalar olami": ["Lego", "Hasbro", "Chicco", "Avent", "Fisher-Price", "Pampers", "Huggies"],
-  "Ro'zg'or buyumlari": ["Tefal", "Vitek", "Moulinex", "Ikea", "Arnica", "Fissman", "Philips"],
-  "Go'zallik va salomatlik": ["L'Oreal", "Nivea", "Maybelline", "Dove", "Garnier", "Vichy", "Evalar"],
-  "Sport va dam olish": ["Nike", "Adidas", "Decathlon", "Kettler", "Reebok", "Puma"],
-  "Avtotovarlar": ["Shell", "Castrol", "Mobil", "Bosch", "Pioneer", "JBL"],
-  "Uy hayvonlari": ["Purina", "Pedigree", "Whiskas", "Royal Canin", "Felix"],
-};
-
-const NOUNS = {
-  "Meva va sabzavotlar": ["Banan", "Olma", "Apelsin", "Mandarin", "Uzum", "Behi", "Nok", "Shaftoli", "Qulupnay", "Pomidor", "Bodring", "Kartoshka", "Piyoz", "Sabzi", "Limon"],
-  "Ichimliklar": ["Gazlangan ichimlik", "Tabiiy sharbat", "Mineral suv", "Energetik ichimlik", "Limonad", "Kvas"],
-  "Sut va pishloq mahsulotlari": ["Pasterizatsiyalangan sut", "Qatiq", "Tvorog", "Qaymoq", "Pishloq", "Yogurt", "Sariyog'"],
-  "Non va qandolat": ["Tandir noni", "Bulochka", "Keks", "Pechene", "Tort", "Vafli"],
-  "Go'sht va parranda": ["Tovuq go'shti", "Mol go'shti", "Qo'y go'shti", "Qiyma", "Kolbasa", "Sosiska"],
-  "Choy, qahva va shirinliklar": ["Qora choy", "Yashil choy", "Eriydigan qahva", "Shokolad", "Konfet", "Asal"],
-  "Konservalar va yarim tayyor": ["Dumaloq pomidor konserva", "No'xat konserva", "Pelmeni", "Manti", "Baliq konserva"],
-  "Smartfonlar": ["Smartfon", "Flagman telefon", "Byudjet smartfon"],
-  "Quvvatlagichlar": ["Tezkor quvvatlagich", "GaN quvvatlagich", "Avto quvvatlagich", "Simsiz quvvatlagich"],
-  "Kabellar": ["Type-C kabel", "Lightning kabel", "USB kabel", "HDMI kabel"],
-  "Himoya oynalar": ["Himoya oynasi", "Matoviy himoya oyna", "Kamera linza himoyasi"],
-  "Telefon qoplamalari": ["Silikon qoplama", "Charm qoplama", "Magnit qoplama", "Shaffof qoplama"],
-  "Simsiz quloqchinlar": ["Bluetooth quloqchin", "TWS quloqchin", "Sport quloqchin", "Over-ear quloqchin"],
-  "Powerbanklar": ["Powerbank 10000mAh", "Powerbank 20000mAh", "Mini powerbank"],
-  "Noutbuklar": ["Noutbuk", "Ultrabuk", "Gaming noutbuk", "Biznes noutbuk"],
-  "Monitorlar": ["Monitor", "Gaming monitor", "4K monitor"],
-  "Klaviatura va sichqonlar": ["Klaviatura", "Simsiz sichqoncha", "Mexanik klaviatura"],
-  "Televizorlar": ["Smart TV", "4K televizor", "OLED televizor"],
-  "Kir yuvish mashinalari": ["Kir yuvish mashinasi", "Avtomat kir yuvish mashinasi"],
-  "Muzlatgichlar": ["Muzlatgich", "Ikki kamerali muzlatgich", "Mini muzlatgich"],
-  "Konditsionerlar": ["Konditsioner", "Inverter konditsioner"],
-  "Erkaklar kiyimi": ["Futbolka", "Kuylak", "Shim", "Kurtka", "Sviter"],
-  "Ayollar kiyimi": ["Ko'ylak", "Bluzka", "Yubka", "Palto", "Jemper"],
-  "Krossovkalar": ["Krossovka", "Sport poyabzal", "Yugurish krossovkasi"],
-  "Botinkalar": ["Botinka", "Qishki botinka", "Charm botinka"],
-  "Sport kiyimlari": ["Sport kostyum", "Legging", "Shorts"],
-  "Ko'ylak va kostyumlar": ["Rasmiy kostyum", "Ko'ylak", "Galstuk"],
-  "O'yinchoqlar": ["Konstruktor", "Qo'g'irchoq", "Radioupravlyaemiy mashina", "Yumshoq o'yinchoq"],
-  "Bolalar kiyimi": ["Bolalar futbolkasi", "Bolalar kombinezoni", "Bolalar kurtkasi"],
-  "Chaqaloq buyumlari": ["Chaqaloq aravachasi", "Yosholog'ich", "Pamperс", "Chaqaloq kosmetikasi"],
-  "Maktab buyumlari": ["Maktab ryukzagi", "Daftar to'plami", "Qalam-ruchka to'plami"],
-  "Oshxona anjomlari": ["Qovurish tovasi", "Qozon", "Pichoq to'plami", "Blender"],
-  "Idish-tovoqlar": ["Likopcha to'plami", "Stakan to'plami", "Choynak"],
-  "Tozalash vositalari": ["Kir yuvish geli", "Idish yuvish vositasi", "Changyutgich"],
-  "Mebel": ["Divan", "Stol", "Stul", "Shkaf"],
-  "Yorug'lik jihozlari": ["LED lampa", "Lyustra", "Stol lampasi"],
-  "Parfyumeriya": ["Erkaklar parfyumeriyasi", "Ayollar parfyumeriyasi", "Deodorant"],
-  "Dekorativ kosmetika": ["Tonal krem", "Lab bo'yog'i", "Tush"],
-  "Soch parvarishi": ["Shampun", "Soch balzami", "Soch moyi"],
-  "Vitamin va BAD": ["Multivitamin", "Vitamin C", "Omega-3", "Kollagen"],
-  "Fitnes jihozlari": ["Gantel to'plami", "Trenajyor", "Yoga gilamchasi"],
-  "Velosipedlar": ["Tog' velosipedi", "Shahar velosipedi", "Bolalar velosipedi"],
-  "Turizm buyumlari": ["Chodir", "Yotoq xalta", "Turistik ryukzak"],
-  "Avto aksessuarlar": ["Avto kover", "Avto tozalagich", "Avto o'rindiq qoplami"],
-  "Moy va texnik suyuqliklar": ["Motor moyi", "Tormoz suyuqligi", "Antifriz"],
-  "Audio-video texnika": ["Avto radio", "Orqa ko'rish kamerasi", "Avto dinamik"],
-  "It ovqati": ["Quruq it ovqati", "Konserva it ovqati", "It uchun vitaminlar"],
-  "Mushuk ovqati": ["Quruq mushuk ovqati", "Konserva mushuk ovqati"],
-  "Hayvonlar uchun aksessuarlar": ["Hayvon uyali", "Hayvon kayishi", "Hayvon o'ynoqi"],
-};
-
-const ADJ = ["Yangi", "Premium", "Klassik", "Original", "Import", "Mahalliy", "Saralangan", "Pro", "Eco", "Standart"];
-const VARIANT = ["", "L", "XL", "M", "128GB", "256GB", "1 kg", "500 g", "2 l", "1 l", "Qora", "Oq", "Ko'k", "Qizil", "38-razmer", "40-razmer"];
-const DELIVERY = ["fast", "tomorrow", "fast", "3days", "tomorrow"];
-
-// deterministic fast hash -> [0,1)
-function h(i, salt) {
-  let x = (i * 2654435761 + salt * 40503) >>> 0;
-  x ^= x << 13; x >>>= 0;
-  x ^= x >> 17;
-  x ^= x << 5; x >>>= 0;
-  return (x % 100000) / 100000;
-}
-
-function buildCatalog(total = 100000) {
-  const pairs = [];
-  for (const g of Object.keys(GROUPS)) for (const s of GROUPS[g]) pairs.push([g, s]);
-  const per = Math.floor(total / pairs.length);
-  const list = new Array(total);
-  const ranges = {}; // group -> {start, end}
-  let idx = 0;
-  pairs.forEach(([g, s], pairIdx) => {
-    const n = pairIdx === pairs.length - 1 ? total - idx : per;
-    if (!ranges[g]) ranges[g] = { start: idx, end: idx };
-    const nouns = NOUNS[s] || [s];
-    const brands = BRANDS[g] || ["ArzonMarket"];
-    for (let k = 0; k < n; k++) {
-      const i = idx;
-      const noun = nouns[Math.floor(h(i, 1) * nouns.length)];
-      const brand = brands[Math.floor(h(i, 2) * brands.length)];
-      const adj = h(i, 3) < 0.35 ? ADJ[Math.floor(h(i, 4) * ADJ.length)] + " " : "";
-      const variant = h(i, 5) < 0.55 ? " " + VARIANT[Math.floor(h(i, 6) * VARIANT.length)] : "";
-      const title = `${adj}${brand} ${noun}${variant}`.replace(/\s+/g, " ").trim();
-      const basePrice = 4000 + Math.floor(h(i, 7) * 280) * 1000; // 4,000 - 284,000
-      const hasDiscount = h(i, 8) < 0.42;
-      const off = hasDiscount ? 5 + Math.floor(h(i, 9) * 12) * 5 : 0; // 5-60 step5
-      const price = hasDiscount ? Math.round((basePrice * (100 - off)) / 100 / 500) * 500 : basePrice;
-      const oldPrice = hasDiscount ? basePrice : 0;
-      const rating = Math.round((3.7 + h(i, 10) * 1.3) * 10) / 10;
-      const reviews = 3 + Math.floor(h(i, 11) * 4200);
-      const sold = 10 + Math.floor(h(i, 12) * 90);
-      const delivery = DELIVERY[Math.floor(h(i, 13) * DELIVERY.length)];
-      list[i] = {
-        id: "P" + (100000 + i),
-        title,
-        brand,
-        group: g,
-        sub: s,
-        price,
-        oldPrice,
-        off,
-        rating,
-        reviews,
-        sold,
-        delivery,
-        img: `https://picsum.photos/seed/am-${g.length}-${s.length}-${i}/500/500`,
-      };
-      idx++;
-    }
-    ranges[g].end = idx;
-  });
-  return { list, ranges };
-}
-
-export const { list: PRODUCTS, ranges: GROUP_RANGES } = buildCatalog(100000);
-
-const INDEX = new Map();
-for (const p of PRODUCTS) INDEX.set(p.id, p);
-export function byId(id) {
-  return INDEX.get(id);
-}
-
-// evenly sample `perGroup` items from each top-level group, optionally
-// filtered (e.g. only discounted) and offset so repeated calls can vary.
-export function sampleAcrossGroups(perGroup = 6, offset = 0, filterFn = null) {
-  const out = [];
-  for (const g of Object.keys(GROUP_RANGES)) {
-    const { start, end } = GROUP_RANGES[g];
-    const span = end - start;
-    let picked = 0;
-    for (let k = 0; k < span && picked < perGroup; k++) {
-      const p = PRODUCTS[start + ((k + offset * 37) % span)];
-      if (!filterFn || filterFn(p)) {
-        out.push(p);
-        picked++;
+// O(1) qidiruv xaritasi
+const PRODUCTS_MAP = new Map();
+PRODUCTS.forEach((p) => {
+  // Ob'ektga xavfsiz SVG fallback qo'shish
+  Object.defineProperty(p, "fallback", {
+    get() {
+      if (!this._fallbackSvg) {
+        this._fallbackSvg = generateProductSvg(this, "Arzon");
       }
+      return this._fallbackSvg;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+
+  PRODUCTS_MAP.set(Number(p.id), p);
+  PRODUCTS_MAP.set(String(p.id), p);
+});
+
+export const byId = (id) => PRODUCTS_MAP.get(id) || PRODUCTS[Number(id) - 1] || PRODUCTS[0];
+export const fmt = (n, lang) => {
+  let l = lang;
+  if (!l && typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("am_lang");
+      if (stored) l = JSON.parse(stored);
+    } catch {
+      l = "uz";
     }
   }
-  return out;
-}
+  return Math.round(n || 0).toLocaleString("en-US").replace(/,/g, " ") + (l === "ru" ? " сум" : " so'm");
+};
+export const num = (n) => Math.round(n || 0).toLocaleString("en-US").replace(/,/g, " ");
 
+export const FREE_FROM = 150000;
+export const DELIVERY_FEE = 15000;
 
-export function fmt(n) {
-  return Math.round(n).toLocaleString("ru-RU").replace(/,/g, " ") + " so'm";
-}
+export const CITIES = [
+  "Toshkent",
+  "Samarqand",
+  "Buxoro",
+  "Andijon",
+  "Farg'ona",
+  "Namangan",
+  "Qarshi",
+  "Nukus",
+  "Navoiy",
+  "Termiz",
+  "Urganch",
+  "Jizzax",
+  "Guliston",
+];
 
-export function specsFor(p) {
-  return [
-    ["Brend", p.brand],
-    ["Toifa", p.group],
-    ["Ichki toifa", p.sub],
-    ["Kafolat", "12 oy rasmiy kafolat"],
-    ["Yetkazib berish", p.delivery === "fast" ? "30 daqiqada" : p.delivery === "tomorrow" ? "Ertaga (1 kunda)" : "2-3 kun ichida"],
-    ["Kod", p.id],
-  ];
-}
+export const POPULAR_SEARCHES = [
+  "iPhone 15 Pro",
+  "Baseus 65W GaN",
+  "AirPods Pro",
+  "Banan",
+  "Nike krossovka",
+  "Robot changyutgich",
+  "Galaxy S24",
+  "Kungaboqar yog'i",
+  "MacBook Air",
+  "Lego konstruktor"
+];
 
-export function descFor(p) {
-  return `${p.title} — ${p.brand} brendining original mahsuloti. ArzonMarket orqali xarid qilinganda rasmiy kafolat, tez yetkazib berish va 14 kun ichida bepul qaytarish imkoniyatidan foydalanishingiz mumkin. Mahsulot sifati nazoratdan o'tgan va saqlash shartlariga muvofiq omborlarimizdan jo'natiladi.`;
-}
-
-export function searchProducts(query, limit = 300) {
-  const q = query.toLowerCase().trim();
-  if (!q) return [];
-  const out = [];
-  for (let i = 0; i < PRODUCTS.length && out.length < limit; i++) {
-    const p = PRODUCTS[i];
-    if (p.title.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q)) out.push(p);
+/**
+ * =====================================================================
+ * IJTIMOIY TARMOQ VA BOT / AI YORDAMCHI HAVOLALARI
+ * =====================================================================
+ * - Telegram Bot: Do'kon haqida ma'lumotlar, ish tartibi, filiallar va 24/7 savol-javob
+ * - AI Yordamchi: Mahsulotlar qidirish, tavsiyalar, aksiyalar va xarid maslahatchisi
+ * =====================================================================
+ */
+export const SOCIAL_LINKS = {
+  telegramBot: {
+    name: "Telegram Bot",
+    username: "@ArzonMarket_bot",
+    url: "https://t.me/ArzonMarket_bot",
+    badge: "Do'kon boti & Savol-javob",
+    role: "Do'kon haqida ma'lumotlar & Jonli javob",
+    desc: "Do'kon manzillari, ish vaqti, yetkazish shartlari va savollaringizga 24/7 javob beruvchi rasmiy bot",
+    actionText: "Telegram Botda savol berish",
+    color: "#0088cc",
+    bgColor: "bg-[#0088cc]",
+    lightBg: "bg-sky-50 text-[#0088cc] border-sky-200 hover:bg-[#0088cc] hover:text-white"
+  },
+  aiAssistant: {
+    name: "AI Yordamchi",
+    badge: "Sun'iy intellekt",
+    role: "Aqlli xarid maslahatchisi",
+    desc: "Mahsulotlar topish, arzon narxlar, aksiyalar va xaridda yordam beruvchi aqlli sun'iy intellekt",
+    actionText: "AI bilan suhbatlashish",
+    color: "#e5252b",
+    bgColor: "bg-gradient-to-r from-purple-600 via-pink-600 to-[#e5252b]",
+    lightBg: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-600 hover:text-white"
   }
-  return out;
-}
+};
 
-export function similarTo(p, count = 10) {
-  // walk outward from this product's position (products are grouped by sub at build time)
-  const startIdx = Number(p.id.slice(1)) - 100000;
-  let found = [];
-  for (let off = 1; found.length < count && off < 4000; off++) {
-    const a = PRODUCTS[startIdx - off];
-    const b = PRODUCTS[startIdx + off];
-    if (a && a.sub === p.sub && a.id !== p.id) found.push(a);
-    if (found.length >= count) break;
-    if (b && b.sub === p.sub && b.id !== p.id) found.push(b);
-  }
-  return found.slice(0, count);
-}
+/**
+ * Telegram bot va do'kon haqida to'liq ma'lumotlar
+ */
+export const STORE_INFO = {
+  name: "Arzon Market",
+  slogan: "O'zbekistondagi eng qulay va tezkor internet do'kon",
+  phone: "+998 (95) 271-98-71",
+  rawPhone: "952719871",
+  hours: "Har kuni 06:00 dan 00:00 gacha (dam olish kunlarisiz, 18 soat uzluksiz)",
+  address: "Toshkent shahri, Bektemir tumani, Bo'g'i Eram 4-ko'cha, 3-uy",
+  landmark: "Bektemir Bo'g'i Eram hududi",
+  delivery: "O'zbekiston bo'ylab 1 kunda bepul yetkazib berish (150 000 so'mdan yuqori)",
+  branchesCount: "120+ ta topshirish punktlari respublika bo'ylab",
+  returnPolicy: "14 kun ichida tovarlarni hech qanday savollarsiz qaytarish",
+  botCommands: [
+    { cmd: "/start", desc: "Botni ishga tushirish va asosiy menyu" },
+    { cmd: "/dokon", desc: "Do'kon manzili, ish tartibi (06:00 - 00:00) va filiallar" },
+    { cmd: "/yetkazish", desc: "Yetkazib berish shartlari va muddatlari" },
+    { cmd: "/aloqa", desc: "Aloqa markazi: +998 (95) 271-98-71 va operator" },
+    { cmd: "/buyurtma", desc: "Buyurtma holatini kuzatish (trekking)" },
+    { cmd: "/katalog", desc: "9 ta asosiy kategoriya va tovarlar" }
+  ]
+};
+
+

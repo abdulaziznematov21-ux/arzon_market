@@ -1,153 +1,476 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../lib/store";
-import { fmt } from "../lib/data";
-
-const FREE_THRESHOLD = 50000;
-const DELIVERY_FEE = 20000;
+import { fmt, num, FREE_FROM, PROMOS } from "../lib/data";
+import { translateProductTitle, getCityName } from "../lib/translations";
 
 export default function Cart() {
-  const { cartLines, setQty, removeFromCart, cartTotal, placeOrder, city, toast } = useStore();
+  const s = useStore();
+  const isRu = s.lang === "ru";
   const nav = useNavigate();
-  const [promo, setPromo] = useState("");
-  const [applied, setApplied] = useState(null);
-  const [address, setAddress] = useState(`${city} sh., manzilni kiriting`);
-  const [editingAddr, setEditingAddr] = useState(false);
-  const [pay, setPay] = useState("Click orqali");
+  const [code, setCode] = useState(s.promo || "");
+  const [err, setErr] = useState(false);
+  const [edit, setEdit] = useState(false);
 
-  if (cartLines.length === 0) {
+  const allSel = s.lines.length > 0 && s.lines.every((l) => l.sel);
+  const left = Math.max(0, FREE_FROM - (s.sub - s.promoOff));
+
+  const check = () => {
+    if (!s.lines.length || !s.sel.length) {
+      s.toast(isRu ? "Пожалуйста, выберите товары для оформления заказа" : "Iltimos, buyurtma berish uchun mahsulotni tanlang");
+      return;
+    }
+    const orderId = s.placeOrder();
+    nav("/orders/" + orderId);
+  };
+
+  if (!s.lines.length) {
     return (
-      <div className="max-w-[700px] mx-auto px-6 py-24 text-center">
-        <span className="material-symbols-outlined text-[64px] text-gray-300">shopping_cart</span>
-        <h1 className="text-2xl font-bold mt-4">Savatingiz bo'sh</h1>
-        <p className="text-gray-500 mt-2">Mahsulotlarni ko'rib chiqing va savatga qo'shing</p>
-        <Link to="/products" className="inline-flex items-center gap-1.5 mt-6 bg-[#e5252b] hover:bg-[#c71e24] text-white px-8 py-3 rounded-xl font-semibold transition">
-          Xarid qilishni boshlash<span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-16 sm:py-24 text-center">
+        <div className="w-24 h-24 rounded-3xl bg-red-50 text-[#e5252b] flex items-center justify-center text-5xl mx-auto mb-5 shadow-sm">
+          🛒
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+          {isRu ? "В корзине пока пусто" : "Savat hozircha bo'sh"}
+        </h1>
+        <p className="text-gray-500 mt-2 max-w-md mx-auto text-[15px]">
+          {isRu 
+            ? "Перейдите на главную страницу или воспользуйтесь поиском, чтобы добавить понравившиеся товары."
+            : "Bosh sahifaga o'ting yoki qidiruv orqali yoqqan mahsulotlaringizni savatga qo'shing."}
+        </p>
+        <Link
+          to="/products"
+          className="inline-flex items-center gap-2 mt-6 bg-[#e5252b] hover:bg-[#c81a20] text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-500/25 transition-all active:scale-95"
+        >
+          <span>{isRu ? "Начать покупки" : "Xarid qilishni boshlash"}</span>
+          <span className="material-symbols-rounded text-[18px]">arrow_forward</span>
         </Link>
       </div>
     );
   }
 
-  const discount = applied ? Math.round(cartTotal * applied.pct) : 0;
-  const fee = cartTotal - discount >= FREE_THRESHOLD ? 0 : DELIVERY_FEE;
-  const total = cartTotal - discount + fee;
-  const progress = Math.min(100, Math.round((cartTotal / FREE_THRESHOLD) * 100));
-
-  const applyPromo = (e) => {
-    e.preventDefault();
-    const code = promo.trim().toUpperCase();
-    if (code === "BAHOR2025" || code === "ARZON10") {
-      setApplied({ code, pct: code === "BAHOR2025" ? 0.08 : 0.1 });
-      toast("Promokod qo'llanildi!");
-    } else {
-      toast("Promokod topilmadi");
-    }
-  };
-
-  const checkout = () => {
-    const id = placeOrder({ address, pay, fee });
-    toast("Buyurtma qabul qilindi!");
-    nav(`/orders/${id}`);
-  };
-
   return (
-    <div className="bg-[#f9f9fa] min-h-screen pb-16">
-      <div className="max-w-[1180px] mx-auto px-6 pt-4">
-        <div className="flex items-center gap-2 text-[13px] text-gray-500"><Link to="/" className="hover:text-[#e5252b]">Bosh sahifa</Link><span>›</span><b className="text-[#1a1a1a]">Savat</b></div>
-        <div className="flex items-center gap-3 mt-2">
-          <h1 className="text-[26px] font-extrabold">Savat</h1>
-          <span className="bg-gray-100 text-gray-600 text-[13px] px-2.5 py-1 rounded-full">{cartLines.length} ta mahsulot</span>
+    <div className="bg-[#f8f9fa] pb-16">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        
+        {/* Breadcrumb */}
+        <div className="text-[13px] text-gray-500 mb-3 flex items-center gap-1.5">
+          <Link to="/" className="hover:text-[#e5252b]">{isRu ? "Главная" : "Bosh sahifa"}</Link>
+          <span>›</span>
+          <b className="text-gray-900">{isRu ? "Корзина" : "Savat"}</b>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 mt-5 items-start">
+        {/* Title & Controls */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
-              <div className="flex items-center gap-2 text-[13.5px]">
-                <span className="material-symbols-outlined text-emerald-600 text-[19px]">local_shipping</span>
-                <b>Bepul yetkazib berish</b>
-                {fee === 0 ? <span className="text-emerald-600 font-medium">— qo'lga kiritildi!</span> : <span className="text-gray-500">— yana {fmt(FREE_THRESHOLD - cartTotal)} qoldi</span>}
-              </div>
-              <div className="h-2 bg-gray-100 rounded-full mt-2.5 overflow-hidden"><div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${progress}%` }} /></div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-[26px] sm:text-[32px] font-black text-gray-900">{isRu ? "Корзина" : "Savat"}</h1>
+              <span className="bg-red-50 text-[#e5252b] text-[12px] font-extrabold px-3 py-1 rounded-full border border-red-100">
+                {s.lines.length} {isRu ? "товаров" : "ta tovar"}
+              </span>
             </div>
+            <p className="text-[13px] text-gray-500 mt-1">
+              {isRu ? "Проверьте выбранные товары и оформите заказ" : "Tanlangan mahsulotlarni ko'rib chiqing va buyurtmani rasmiylashtiring"}
+            </p>
+          </div>
 
-            <div className="space-y-3">
-              {cartLines.map((l) => (
-                <div key={l.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex gap-4">
-                  <Link to={`/product/${l.id}`} className="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 shrink-0"><img src={l.p.img} alt="" className="w-full h-full object-cover" /></Link>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <Link to={`/product/${l.id}`} className="text-[14.5px] font-medium hover:text-[#e5252b] line-clamp-2">{l.p.title}</Link>
-                      <button onClick={() => removeFromCart(l.id)} className="shrink-0 text-gray-300 hover:text-[#e5252b]"><span className="material-symbols-outlined text-[20px]">delete</span></button>
-                    </div>
-                    <div className="text-[12.5px] text-gray-400 mt-0.5">{l.p.brand}</div>
-                    <div className="flex items-end justify-between mt-3">
-                      <div className="flex items-center gap-1 bg-gray-50 rounded-lg px-1">
-                        <button onClick={() => setQty(l.id, l.qty - 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-[#e5252b]"><span className="material-symbols-outlined text-[17px]">remove</span></button>
-                        <span className="w-8 text-center font-semibold text-[14px]">{l.qty}</span>
-                        <button onClick={() => setQty(l.id, l.qty + 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-[#e5252b]"><span className="material-symbols-outlined text-[17px]">add</span></button>
+          <div className="bg-white rounded-2xl px-5 py-3 flex items-center flex-wrap gap-4 text-[13.5px] border border-gray-150 shadow-xs">
+            <label className="flex items-center gap-2.5 font-bold text-gray-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={allSel}
+                onChange={() => s.selAll(!allSel)}
+                className="accent-[#e5252b] w-4.5 h-4.5 rounded cursor-pointer"
+              />
+              <span>{isRu ? "Выбрать все" : "Hammasini belgilash"}</span>
+            </label>
+            <div className="w-px h-4 bg-gray-200" />
+            <button
+              onClick={s.removeSel}
+              className="text-[#e5252b] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span className="material-symbols-rounded text-[18px]">delete</span>
+              <span>{isRu ? "Удалить выбранные" : "Tanlanganlarni o'chirish"}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Free Delivery Tracker Ribbon */}
+        <div className="bg-white rounded-3xl p-5 mt-4 border border-gray-150 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div className="flex items-center gap-2.5">
+              <span className="material-symbols-rounded text-[22px] text-emerald-600">local_shipping</span>
+              <div>
+                <b className="text-[15px] text-gray-900">{isRu ? "Бесплатная доставка" : "Bepul yetkazib berish"}</b>
+                <div className="text-[13px] text-gray-500">
+                  {left > 0 ? (
+                    <>
+                      {isRu ? "До бесплатной доставки еще " : "Bepul yetkazishgacha yana "}
+                      <strong className="text-gray-800">{fmt(left, s.lang)}</strong>
+                      {!isRu && " qoldi"}
+                    </>
+                  ) : (
+                    <span className="text-emerald-600 font-bold">
+                      {isRu ? "Поздравляем! Для вас доставка бесплатна!" : "Tabriklaymiz! Siz uchun yetkazib berish bepul!"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="text-right font-extrabold text-[14px] text-emerald-700">
+              {num(s.sub - s.promoOff)} / {num(FREE_FROM)} {isRu ? "сум" : "so'm"}
+            </div>
+          </div>
+          <div className="h-2.5 bg-gray-100 rounded-full mt-3 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, ((s.sub - s.promoOff) / FREE_FROM) * 100)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Cart Contents & Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_420px] gap-6 mt-6 items-start">
+          
+          {/* Left Column: Cart Items list & details */}
+          <div className="space-y-4 min-w-0">
+            {s.lines.map(({ id, qty, sel, p }) => {
+              const translatedTitle = translateProductTitle(p.title, s.lang);
+              return (
+                <div
+                  key={id}
+                  className="bg-white rounded-3xl p-4 sm:p-5 border border-gray-150 shadow-xs flex items-start sm:items-center gap-3 sm:gap-4 transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!sel}
+                    onChange={() => s.toggleSel(id)}
+                    aria-label="Tanlash"
+                    className="accent-[#e5252b] w-5 h-5 rounded cursor-pointer mt-1 sm:mt-0 shrink-0"
+                  />
+
+                  <Link
+                    to={`/product/${id}`}
+                    className="relative w-[85px] h-[85px] sm:w-[110px] sm:h-[110px] rounded-2xl bg-gray-50 border border-gray-150 flex items-center justify-center shrink-0 group overflow-hidden"
+                  >
+                    <img src={p.image} alt={translatedTitle} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                    <span className="absolute top-1.5 left-1.5 bg-[#e5252b] text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-md">
+                      -{p.off}%
+                    </span>
+                  </Link>
+
+                  <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="min-w-0 pr-2">
+                      <div className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>
+                          {p.delivery === "fast" 
+                            ? (isRu ? "⚡ Доставка за 20 минут" : "⚡ 20 daqiqada yetkaziladi") 
+                            : (isRu ? "Доставка завтра" : "Ertaga yetkaziladi")}
+                        </span>
                       </div>
-                      <b className="text-[16px]">{fmt(l.p.price * l.qty)}</b>
+                      <Link
+                        to={`/product/${id}`}
+                        className="font-bold text-[15px] sm:text-[16px] text-gray-900 hover:text-[#e5252b] transition line-clamp-2 mt-0.5 break-words"
+                      >
+                        {translatedTitle}
+                      </Link>
+                      <div className="text-[12px] text-gray-400 mt-0.5 font-medium">
+                        {isRu ? "Бренд:" : "Brend:"} <span className="text-gray-600 font-semibold">{p.brand}</span> · {p.sub}
+                      </div>
+                    </div>
+
+                    <div className="sm:text-right shrink-0">
+                      <div className="text-[18px] sm:text-[20px] font-black text-gray-900">
+                        {fmt(p.price * qty, s.lang)}
+                      </div>
+                      {qty > 1 && (
+                        <div className="text-[11.5px] text-gray-500">
+                          {qty} {isRu ? "шт" : "dona"} × {num(p.price)}
+                        </div>
+                      )}
+                      <div className="text-[12px] text-gray-400 line-through">
+                        {fmt(p.old * qty, s.lang)}
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-2 justify-between sm:justify-end">
+                        <div className="flex items-center bg-gray-100 rounded-xl p-0.5 border border-gray-200/60">
+                          <button
+                            onClick={() => s.setQty(id, qty - 1)}
+                            aria-label="Kamaytirish"
+                            className="w-8 h-8 rounded-lg bg-white text-gray-700 hover:bg-gray-50 flex items-center justify-center font-bold text-base transition shadow-2xs cursor-pointer"
+                          >
+                            −
+                          </button>
+                          <b className="w-8 text-center text-[13px] font-extrabold">{qty}</b>
+                          <button
+                            onClick={() => s.setQty(id, qty + 1)}
+                            aria-label="Ko'paytirish"
+                            className="w-8 h-8 rounded-lg bg-[#e5252b] text-white flex items-center justify-center font-bold text-base transition shadow-2xs cursor-pointer"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => s.remove(id)}
+                          aria-label="O'chirish"
+                          className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-red-50 text-gray-400 hover:text-[#e5252b] flex items-center justify-center transition cursor-pointer"
+                        >
+                          <span className="material-symbols-rounded text-[18px]">delete</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              );
+            })}
 
-          <aside className="bg-white rounded-2xl border border-gray-100 p-5 lg:sticky lg:top-[90px]">
-            <b className="text-[16px]">Buyurtma hisobi</b>
-            <div className="text-[12.5px] text-gray-500 mt-0.5">{city}</div>
-
-            <form onSubmit={applyPromo} className="mt-4">
-              <label className="text-[12px] text-gray-500 mb-1 block">Promokod</label>
-              <div className="flex gap-2">
-                <input value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="BAHOR2025" className="flex-1 h-[40px] px-3 border border-gray-200 rounded-xl text-[13.5px] outline-none focus:border-[#e5252b]" />
-                <button type="submit" className="h-[40px] px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-[13px] font-semibold">Qo'llash</button>
+            {/* Promocode Box */}
+            <div className="bg-white rounded-3xl p-5 border border-gray-150 shadow-xs">
+              <div className="flex justify-between items-center mb-3">
+                <b className="text-[16px] text-gray-900 flex items-center gap-2">
+                  <span className="material-symbols-rounded text-[20px] text-amber-500">confirmation_number</span>
+                  <span>{isRu ? "Промокоды и скидки" : "Promokod va chegirmalar"}</span>
+                </b>
+                <span className="text-[12px] text-gray-400 font-medium">{isRu ? "Выберите в 1 клик" : "1 bosishda tanlang"}</span>
               </div>
-              {applied && <div className="mt-2 flex items-center justify-between bg-emerald-50 text-emerald-700 text-[12.5px] px-3 py-2 rounded-lg"><span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">check_circle</span>{applied.code} qo'llandi</span><button type="button" onClick={() => setApplied(null)}><span className="material-symbols-outlined text-[16px]">close</span></button></div>}
-            </form>
 
-            <div className="border-t border-gray-100 mt-4 pt-4 space-y-2 text-[14px]">
-              <div className="flex justify-between text-gray-600"><span>Mahsulotlar ({cartLines.reduce((s, l) => s + l.qty, 0)} dona):</span><span>{fmt(cartTotal)}</span></div>
-              {discount > 0 && <div className="flex justify-between text-emerald-600"><span>Promokod chegirmasi:</span><span>-{fmt(discount)}</span></div>}
-              <div className="flex justify-between text-gray-600"><span>Yetkazib berish:</span><span>{fee ? fmt(fee) : "Bepul"}</span></div>
-              <div className="flex justify-between items-end pt-2 border-t border-gray-100"><b className="text-[16px]">Jami to'lov:</b><b className="text-[22px]">{fmt(total)}</b></div>
-            </div>
-
-            <div className="mt-4">
-              <label className="text-[12px] text-gray-500 mb-1 block">Yetkazib berish manzili</label>
-              {editingAddr ? (
-                <div className="flex gap-2">
-                  <input autoFocus value={address} onChange={(e) => setAddress(e.target.value)} onKeyDown={(e) => e.key === "Enter" && setEditingAddr(false)} className="flex-1 h-[40px] px-3 border border-gray-200 rounded-xl text-[13.5px] outline-none focus:border-[#e5252b]" />
-                  <button onClick={() => setEditingAddr(false)} className="h-[40px] px-3 rounded-xl bg-gray-100 text-[13px] font-semibold">OK</button>
-                </div>
-              ) : (
-                <button onClick={() => setEditingAddr(true)} className="w-full flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2.5 text-left hover:bg-gray-100">
-                  <span className="text-[13.5px] flex items-center gap-1.5"><span className="material-symbols-outlined text-[17px] text-gray-400">location_on</span>{address}</span>
-                  <span className="text-[12.5px] text-[#e5252b] font-medium">O'zgartirish</span>
+              {/* Quick promo code chips */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {Object.values(PROMOS).map((pr) => (
+                  <button
+                    key={pr.code}
+                    onClick={() => {
+                      setCode(pr.code);
+                      s.applyPromo(pr.code);
+                    }}
+                    className={`text-[12px] font-bold px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
+                      s.promo === pr.code
+                        ? "bg-[#e5252b] text-white border-[#e5252b] shadow-xs"
+                        : "bg-gray-50 text-gray-700 border-gray-200 hover:border-[#e5252b] hover:text-[#e5252b]"
+                    }`}
+                  >
+                    <span>{pr.code}</span>
+                    <span className="opacity-80">(-{Math.round(pr.discount / 1000)}k)</span>
+                  </button>
+                ))}
+              </div>
+              
+              <div className="flex gap-2.5">
+                <input
+                  value={code}
+                  onChange={(e) => { setCode(e.target.value); setErr(false); }}
+                  placeholder={isRu ? "Введите промокод..." : "Promokodni kiriting..."}
+                  className="flex-1 min-w-0 bg-gray-50 rounded-2xl px-4 h-[48px] text-[15px] font-bold outline-none border border-gray-200 focus:border-[#e5252b] uppercase transition"
+                />
+                <button
+                  onClick={() => setErr(!s.applyPromo(code))}
+                  className="px-6 h-[48px] rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-[14px] transition active:scale-95 cursor-pointer"
+                >
+                  {isRu ? "Применить" : "Qo'llash"}
                 </button>
+              </div>
+
+              {s.promo && (
+                <div className="mt-3 bg-emerald-50 text-emerald-800 rounded-2xl px-4 py-3 flex items-center justify-between text-[13.5px] border border-emerald-200/60">
+                  <span className="flex items-center gap-1.5">
+                    <span className="material-symbols-rounded text-[18px] text-emerald-600">check_circle</span>
+                    <span>
+                      <strong>{s.promo}</strong> {isRu ? `код успешно применен (-${num(s.promoOff)} сум)` : `kodi muvaffaqiyatli qo'llandi (-${num(s.promoOff)} so'm)`}
+                    </span>
+                  </span>
+                  <button
+                    onClick={() => { s.setPromo(null); setCode(""); }}
+                    className="text-emerald-700 font-bold hover:text-emerald-900 cursor-pointer"
+                  >
+                    {isRu ? "Отменить" : "Bekor qilish"}
+                  </button>
+                </div>
+              )}
+
+              {err && (
+                <div className="mt-3 bg-red-50 text-red-600 rounded-2xl px-4 py-2.5 text-[13px] flex items-center gap-1.5 border border-red-100">
+                  <span className="material-symbols-rounded text-[18px]">error</span>
+                  <span>{isRu ? "Промокод не найден. Например: ARZON2026, BAHOR50, SUPER10" : "Promokod topilmadi. Masalan: ARZON2026, BAHOR50, SUPER10"}</span>
+                </div>
               )}
             </div>
 
-            <div className="mt-4">
-              <label className="text-[12px] text-gray-500 mb-1.5 block">To'lov usuli</label>
-              <div className="grid grid-cols-2 gap-2">
-                {["Click orqali", "Payme orqali", "Naqd pul", "Uzcard/Humo"].map((m) => (
-                  <button key={m} onClick={() => setPay(m)} className={`h-[38px] rounded-xl text-[12.5px] font-medium border ${pay === m ? "bg-red-50 border-[#e5252b] text-[#e5252b]" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}>{m}</button>
-                ))}
+            {/* Address & Delivery Info Card */}
+            <div className="bg-white rounded-3xl p-5 border border-gray-150 shadow-xs flex items-center flex-wrap sm:flex-nowrap gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#e5252b] flex items-center justify-center shrink-0">
+                <span className="material-symbols-rounded text-[24px]">location_on</span>
+              </div>
+              <div className="flex-1 min-w-[180px]">
+                <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  {isRu ? `Адрес доставки (${getCityName(s.city, s.lang)})` : `Yetkazish manzili (${s.city})`}
+                </div>
+                {edit ? (
+                  <input
+                    autoFocus
+                    value={s.address}
+                    onChange={(e) => s.setAddress(e.target.value)}
+                    onBlur={() => setEdit(false)}
+                    onKeyDown={(e) => e.key === "Enter" && setEdit(false)}
+                    className="w-full border-b-2 border-[#e5252b] outline-none font-bold text-[15px] text-gray-900 py-1"
+                  />
+                ) : (
+                  <div className="font-extrabold text-[15px] text-gray-900 break-words mt-0.5">
+                    {s.address}
+                  </div>
+                )}
+                <div className="text-[12px] text-emerald-600 font-semibold mt-0.5">
+                  {isRu ? "Завтра с 10:00 до 22:00 курьер доставит заказ" : "Ertaga soat 10:00 - 22:00 oralig'ida kuryer yetkazadi"}
+                </div>
+              </div>
+              <button
+                onClick={() => setEdit(!edit)}
+                className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-[13px] font-bold transition cursor-pointer"
+              >
+                {edit ? (isRu ? "Сохранить" : "Saqlash") : (isRu ? "Изменить" : "O'zgartirish")}
+              </button>
+            </div>
+
+            {/* User Receiver Banner */}
+            {s.user ? (
+              <div className="bg-emerald-50/70 border border-emerald-200/60 rounded-3xl p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                    {s.user.avatar || s.user?.name?.charAt(0) || "U"}
+                  </div>
+                  <div>
+                    <div className="text-[14px] font-bold text-gray-900">
+                      {isRu ? "Получатель:" : "Qabul qiluvchi:"} {s.user?.name || (isRu ? "Покупатель" : "Xaridor")}
+                    </div>
+                    <div className="text-[12px] text-gray-600 font-mono">{s.user?.phone || ""}</div>
+                  </div>
+                </div>
+                <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800">
+                  {isRu ? "Аккаунт подключен" : "Hisob ulangan"}
+                </span>
+              </div>
+            ) : (
+              <div className="bg-amber-50/80 border border-amber-200/70 rounded-3xl p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-rounded text-amber-600 text-[26px]">account_circle</span>
+                  <div className="text-[13px] text-amber-900">
+                    {isRu 
+                      ? "Войдите в профиль для быстрого оформления и получения бонусов." 
+                      : "Buyurtmani tezroq rasmiylashtirish va bonuslar uchun profilingizga kiring."}
+                  </div>
+                </div>
+                <button
+                  onClick={s.openLogin}
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-bold transition shrink-0 cursor-pointer"
+                >
+                  {isRu ? "Войти" : "Kirish"}
+                </button>
+              </div>
+            )}
+
+          </div>
+
+          {/* Right Column: Order Summary & Checkout CTA */}
+          <aside className="space-y-4 lg:sticky lg:top-[100px] min-w-0">
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-150 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <b className="text-[18px] font-black text-gray-900">{isRu ? "Сумма заказа" : "Buyurtma hisobi"}</b>
+                <span className="bg-gray-100 text-gray-700 text-[12px] font-bold px-2.5 py-1 rounded-lg">
+                  {getCityName(s.city, s.lang)}
+                </span>
+              </div>
+
+              <div className="space-y-3 border-t border-gray-100 pt-4 text-[14px]">
+                <div className="flex justify-between text-gray-600">
+                  <span>{isRu ? `Товары (${s.sel.reduce((a, l) => a + l.qty, 0)} шт):` : `Tovarlar (${s.sel.reduce((a, l) => a + l.qty, 0)} dona):`}</span>
+                  <b className="text-gray-900 font-bold">{fmt(s.old, s.lang)}</b>
+                </div>
+
+                <div className="flex justify-between text-gray-600">
+                  <span>{isRu ? "Сезонная скидка:" : "Mavsumiy chegirma:"}</span>
+                  <b className="text-[#e5252b] font-bold">-{fmt(s.saved, s.lang)}</b>
+                </div>
+
+                {s.promo && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>{isRu ? "Скидка по промокоду:" : "Promokod chegirmasi:"}</span>
+                    <b className="text-[#e5252b] font-bold">-{fmt(s.promoOff, s.lang)}</b>
+                  </div>
+                )}
+
+                <div className="flex justify-between text-gray-600">
+                  <span>{isRu ? "Доставка:" : "Yetkazib berish:"}</span>
+                  {s.fee ? (
+                    <b className="text-gray-900">{fmt(s.fee, s.lang)}</b>
+                  ) : (
+                    <span>
+                      <s className="text-gray-400 text-[12px] mr-1.5">{isRu ? "20 000 сум" : "20 000 so'm"}</s>
+                      <b className="text-emerald-600 font-bold">{isRu ? "Бесплатно" : "Bepul"}</b>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-between items-end gap-2 border-t border-gray-100 mt-4 pt-4">
+                <b className="text-[16px] text-gray-900">{isRu ? "Итого к оплате:" : "Jami to'lov:"}</b>
+                <div className="text-right">
+                  <div className="text-[28px] sm:text-[32px] font-black text-gray-900 leading-none">
+                    {num(s.total)} <span className="text-[17px] font-bold">{isRu ? "сум" : "so'm"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between gap-2 text-[12.5px] mt-2 bg-emerald-50 text-emerald-800 p-2.5 rounded-xl border border-emerald-100">
+                <span>{isRu ? "Ваша общая экономия:" : "Umumiy tejovingiz:"}</span>
+                <b className="font-extrabold">{fmt(s.saved + s.promoOff, s.lang)}</b>
+              </div>
+
+              {/* Installment preview pill */}
+              <div className="bg-amber-50/80 rounded-2xl p-3 mt-4 border border-amber-200/60 text-[13px] text-amber-900">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                  {isRu ? "Рассрочка (Uzum Nasiya)" : "Muddatli to'lov (Uzum Nasiya)"}
+                </div>
+                <div>
+                  {isRu 
+                    ? <>От <strong className="text-[#e5252b] font-extrabold">{fmt(s.total / 12, s.lang)}</strong> в месяц на 12 мес</>
+                    : <>Oyiga <strong className="text-[#e5252b] font-extrabold">{fmt(s.total / 12)}</strong>dan 12 oyga</>}
+                </div>
+              </div>
+
+              {/* Checkout Button */}
+              <button
+                onClick={check}
+                className="w-full h-[54px] mt-5 bg-gradient-to-r from-[#e5252b] to-[#c8102e] hover:brightness-105 active:scale-[0.99] text-white rounded-2xl font-black text-[16px] shadow-lg shadow-red-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>{isRu ? "Оформить заказ" : "Buyurtmani rasmiylashtirish"}</span>
+                <span className="material-symbols-rounded text-[20px]">arrow_forward</span>
+              </button>
+
+              <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] text-gray-500 text-center">
+                <div className="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
+                  <b className="block text-gray-800 text-[12px]">{isRu ? "Безопасная оплата" : "Xavfsiz to'lov"}</b>
+                  {isRu ? "100% защита данных" : "100% himoyalangan"}
+                </div>
+                <div className="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
+                  <b className="block text-gray-800 text-[12px]">{isRu ? "Возврат за 14 дней" : "14 kunda qaytarish"}</b>
+                  {isRu ? "Гарантия без хлопот" : "Muammosiz kafolat"}
+                </div>
               </div>
             </div>
 
-            <button onClick={checkout} className="w-full h-[50px] mt-5 rounded-xl bg-[#e5252b] hover:bg-[#c71e24] text-white font-bold flex items-center justify-center gap-2 transition">
-              Buyurtmani rasmiylashtirish<span className="material-symbols-outlined text-[19px]">arrow_forward</span>
-            </button>
-
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              <div className="flex items-center gap-1.5 text-[11.5px] text-gray-500 bg-gray-50 rounded-lg px-2 py-2"><span className="material-symbols-outlined text-[16px]">lock</span>Xavfsiz to'lov</div>
-              <div className="flex items-center gap-1.5 text-[11.5px] text-gray-500 bg-gray-50 rounded-lg px-2 py-2"><span className="material-symbols-outlined text-[16px]">autorenew</span>14 kun qaytarish</div>
+            <div className="bg-gray-100/80 rounded-2xl p-4 text-[12.5px] text-gray-600 flex items-start gap-2.5">
+              <span className="material-symbols-rounded text-[20px] text-gray-500 shrink-0 mt-0.5">verified_user</span>
+              <span>
+                {isRu 
+                  ? "Вы можете проверить товар при получении. Если не подойдет — возврат на месте бесплатный."
+                  : "Tovarni qabul qilayotganingizda bemalol tekshirib olishingiz mumkin. Yoqmasa, joyida qaytarish bepul."}
+              </span>
             </div>
           </aside>
+
         </div>
+
       </div>
     </div>
   );

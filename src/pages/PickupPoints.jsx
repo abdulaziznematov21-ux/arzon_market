@@ -16,7 +16,7 @@ function pointsFor(city) {
 }
 
 export default function PickupPoints() {
-  const { city, toast } = useStore();
+  const { city, setCity, toast } = useStore();
   const points = pointsFor(city);
 
   return (
@@ -48,11 +48,19 @@ export default function PickupPoints() {
         <div className="mt-10 bg-white rounded-2xl border border-gray-100 p-5">
           <b className="text-[14px]">Boshqa shahar tanlang</b>
           <div className="flex flex-wrap gap-2 mt-3">
-            {CITIES.slice(0, 10).map((c) => (
-              <span key={c} className={`text-[12.5px] px-3 py-1.5 rounded-full ${c === city ? "bg-[#e5252b] text-white" : "bg-gray-100 text-gray-600"}`}>{c}</span>
+            {CITIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => { setCity(c); toast(`Shahar: ${c}`); }}
+                className={`text-[12.5px] px-3.5 py-1.5 rounded-full transition font-medium cursor-pointer ${
+                  c === city ? "bg-[#e5252b] text-white shadow-sm" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                }`}
+              >
+                {c}
+              </button>
             ))}
           </div>
-          <p className="text-[12px] text-gray-400 mt-3">Shaharni header'dagi "Shahar" tugmasidan o'zgartirishingiz mumkin.</p>
+          <p className="text-[12px] text-gray-400 mt-3">Shaharni yuqori header'dagi "Shahar" menyusi orqali ham o'zgartirishingiz mumkin.</p>
         </div>
       </div>
     </div>

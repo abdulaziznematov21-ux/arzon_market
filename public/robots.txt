@@ -7,4 +7,4 @@ Disallow: /orders/
 Disallow: /cart
 
 # Sitemap location
-Sitemap: https://arzon-market.vercel.app/sitemap.xml
+Sitemap: https://arzon-market-psi.vercel.app/sitemap.xml

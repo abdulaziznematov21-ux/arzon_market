@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 *.exe
 .vercel
+
+.vercel

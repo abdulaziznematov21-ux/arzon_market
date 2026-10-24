@@ -38,6 +38,7 @@ export default function LoginModal({ onClose }) {
   const [canResend, setCanResend] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [smsToast, setSmsToast] = useState("");
+  const [smsResult, setSmsResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
@@ -80,11 +81,48 @@ export default function LoginModal({ onClose }) {
 
   const detectedOperator = getOperator(phone);
 
-  const sendRealSms = () => {
-    const code = String(Math.floor(1000 + Math.random() * 9000));
-    setGeneratedCode(code);
-    setSmsToast(`📲 Yangi SMS: Arzon Market kirish kodi: ${code}. Begonalarga bermang!`);
-    toast(`Tasdiqlash kodi yuborildi: ${code} 📲`);
+  // REAL SMS JO'NATISH FUNKSIYASI (Eskiz.uz / Twilio / Backend orqali)
+  const sendRealSms = async (targetPhone = phone) => {
+    setIsLoading(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/send-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: targetPhone })
+      });
+      const data = await res.json();
+      setIsLoading(false);
+
+      if (data.ok) {
+        setSmsResult(data);
+        if (data.code) {
+          setGeneratedCode(data.code);
+        }
+        if (data.realSms) {
+          toast(`📲 Haqiqiy SMS +998 ${formattedDisplayPhone(targetPhone)} raqamingizga yuborildi!`);
+        } else {
+          toast(data.message || `Tasdiqlash kodi: ${data.code || "1111"}`);
+        }
+        setStep(2);
+        setTimer(59);
+        setCanResend(false);
+        setOtp(["", "", "", ""]);
+        setTimeout(() => otpRefs[0].current?.focus(), 150);
+      } else {
+        setErrorMsg(data.error || "SMS yuborishda xatolik yuz berdi");
+      }
+    } catch {
+      setIsLoading(false);
+      const fallbackCode = String(Math.floor(1000 + Math.random() * 9000));
+      setGeneratedCode(fallbackCode);
+      setSmsResult({ ok: true, realSms: false, code: fallbackCode });
+      setStep(2);
+      setTimer(59);
+      setCanResend(false);
+      setOtp(["", "", "", ""]);
+      setTimeout(() => otpRefs[0].current?.focus(), 150);
+    }
   };
 
   // Submit phone in SMS mode
@@ -94,18 +132,7 @@ export default function LoginModal({ onClose }) {
       setErrorMsg("Iltimos, 9 xonali telefon raqamingizni to'liq kiriting");
       return;
     }
-    setErrorMsg("");
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      sendRealSms();
-      setStep(2);
-      setTimer(59);
-      setCanResend(false);
-      setOtp(["", "", "", ""]);
-      setTimeout(() => otpRefs[0].current?.focus(), 150);
-    }, 300);
+    sendRealSms(phone);
   };
 
   // Quick 1-click test accounts
@@ -169,36 +196,64 @@ export default function LoginModal({ onClose }) {
     }
   };
 
-  // Verify OTP Code
-  const verifyOtpCode = (enteredCode) => {
-    if (enteredCode === generatedCode || enteredCode === "1111" || enteredCode === "8492") {
-      setIsLoading(true);
-      setErrorMsg("");
+  // Verify OTP Code (Backend orqali tekshirish)
+  const verifyOtpCode = async (enteredCode) => {
+    setIsLoading(true);
+    setErrorMsg("");
 
-      setTimeout(() => {
+    try {
+      const res = await fetch("/api/verify-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, code: enteredCode })
+      });
+      const data = await res.json();
+
+      if (data.ok && data.verified) {
         setIsLoading(false);
         // Check if user already registered in users DB
         try {
           const db = JSON.parse(localStorage.getItem("am_users_db") || "{}");
           const existingUser = db[phone];
           if (existingUser && existingUser.name) {
-            // Already registered returning user! Log in straight away!
             login(phone, existingUser.name, {
               city: existingUser.city || selectedCity,
               address: existingUser.address || userAddress,
             });
+            toast(`Xush kelibsiz, ${existingUser.name}! 👋`);
             onClose();
             return;
           }
         } catch {
           /* ignore */
         }
-
-        // New user: ask for name & city
         setStep(3);
-      }, 400);
-    } else {
-      setErrorMsg("Kiritilgan SMS kod noto'g'ri. Qayta tekshirib kiriting.");
+      } else {
+        setIsLoading(false);
+        setErrorMsg(data.error || "Kiritilgan SMS kod noto'g'ri. Qayta tekshirib kiriting.");
+      }
+    } catch {
+      setIsLoading(false);
+      if (enteredCode === generatedCode || enteredCode === "1111" || enteredCode === "8492") {
+        try {
+          const db = JSON.parse(localStorage.getItem("am_users_db") || "{}");
+          const existingUser = db[phone];
+          if (existingUser && existingUser.name) {
+            login(phone, existingUser.name, {
+              city: existingUser.city || selectedCity,
+              address: existingUser.address || userAddress,
+            });
+            toast(`Xush kelibsiz, ${existingUser.name}! 👋`);
+            onClose();
+            return;
+          }
+        } catch {
+          /* ignore */
+        }
+        setStep(3);
+      } else {
+        setErrorMsg("Kiritilgan SMS kod noto'g'ri. Qayta tekshirib kiriting.");
+      }
     }
   };
 
@@ -206,7 +261,7 @@ export default function LoginModal({ onClose }) {
     if (!canResend) return;
     setOtp(["", "", "", ""]);
     setErrorMsg("");
-    sendRealSms();
+    sendRealSms(phone);
     setTimer(59);
     setCanResend(false);
     otpRefs[0].current?.focus();
@@ -477,8 +532,17 @@ export default function LoginModal({ onClose }) {
               {step === 2 && (
                 <div className="space-y-4">
                   <div className="text-center">
-                    <div className="text-[13.5px] text-gray-600">
-                      <b>+998 {formattedDisplayPhone()}</b> raqamiga yuborilgan 4 xonali kodni kiriting
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[11.5px] font-bold border border-emerald-200 mb-2">
+                      <span className="material-symbols-rounded text-[15px] text-emerald-600">verified</span>
+                      <span>
+                        {smsResult?.realSms
+                          ? "Haqiqiy SMS telefoningizga yuborildi"
+                          : "SMS xabarnoma yuborildi"}
+                      </span>
+                    </div>
+
+                    <div className="text-[13.5px] text-gray-700">
+                      <b>+998 {formattedDisplayPhone()}</b> raqamingizdagi SMS xabarlarni oching va 4 xonali kodni kiriting
                     </div>
                     <button
                       type="button"
@@ -516,17 +580,32 @@ export default function LoginModal({ onClose }) {
                     ))}
                   </div>
 
-                  {/* 1-Click Code Autofill Pill */}
-                  <div className="flex justify-center">
-                    <button
-                      type="button"
-                      onClick={autoFillOtp}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#e5252b] text-[12px] font-extrabold transition cursor-pointer border border-red-200"
-                    >
-                      <span className="material-symbols-rounded text-[16px]">touch_app</span>
-                      <span>Tasdiqlash kodi: <b>{generatedCode || "1111"}</b> (bosing)</span>
-                    </button>
-                  </div>
+                  {/* Real SMS Success Banner (when real SMS is dispatched to SIM) */}
+                  {smsResult?.realSms ? (
+                    <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-center text-[12px] text-emerald-900 font-semibold flex items-center justify-center gap-2">
+                      <span className="material-symbols-rounded text-[18px] text-emerald-600">sms</span>
+                      <span>Haqiqiy SMS telefoningizga bordi. Iltimos, SMS xabarlarni tekshiring!</span>
+                    </div>
+                  ) : (
+                    /* Simulation / Demo helper pill when provider token not yet in .env */
+                    <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-amber-50/90 border border-amber-200 text-center">
+                      <div className="text-[11.5px] text-amber-900 font-bold flex items-center gap-1">
+                        <span className="material-symbols-rounded text-[15px] text-amber-600">info</span>
+                        <span>Eskiz.uz hisobi .env da sozlanmagan (Sinov kodi):</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={autoFillOtp}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white hover:bg-amber-100 text-[#e5252b] text-[12px] font-black transition cursor-pointer border border-amber-300 shadow-2xs"
+                      >
+                        <span className="material-symbols-rounded text-[15px]">touch_app</span>
+                        <span>Avtomatik to'ldirish: <b>{generatedCode || "1111"}</b> (bosing)</span>
+                      </button>
+                      <span className="text-[10px] text-amber-700">
+                        Eskiz.uz tokenini .env ga qo'ysangiz, SMS to'g'ridan-to'g'ri SIM-kartaga boradi.
+                      </span>
+                    </div>
+                  )}
 
                   {errorMsg && (
                     <p className="text-[12px] text-[#e5252b] font-bold text-center flex items-center justify-center gap-1">

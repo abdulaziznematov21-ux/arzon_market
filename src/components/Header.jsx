@@ -481,6 +481,14 @@ export default function Header() {
                     <span className="material-symbols-rounded text-[18px]">favorite</span>
                     <span>{t("favorites")}</span>
                   </button>
+                  <Link
+                    to="/admin"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-gray-700 hover:bg-red-50 hover:text-[#e5252b] flex items-center gap-2 cursor-pointer border-t border-gray-100 transition"
+                  >
+                    <span className="material-symbols-rounded text-[18px] text-[#e5252b]">admin_panel_settings</span>
+                    <span>Admin Panel</span>
+                  </Link>
                   <button
                     onClick={() => {
                       setUserMenuOpen(false);
@@ -765,6 +773,14 @@ export default function Header() {
                 >
                   <span className="material-symbols-rounded text-[20px]">storefront</span>
                   <span>{t("sellOnArzon")}</span>
+                </Link>
+                <Link
+                  to="/admin"
+                  onClick={closeMenu}
+                  className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-red-50 hover:text-[#e5252b] text-[13px] font-bold text-gray-800 transition"
+                >
+                  <span className="material-symbols-rounded text-[20px] text-[#e5252b]">admin_panel_settings</span>
+                  <span>Admin Panel</span>
                 </Link>
                 <Link
                   to="/faq"

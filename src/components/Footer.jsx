@@ -147,6 +147,10 @@ export default function Footer() {
               <Link to="/open-pickup" className="block text-gray-600 hover:text-[#e5252b] transition">
                 {isRu ? "Открыть пункт выдачи" : "Topshirish punkti ochish"}
               </Link>
+              <Link to="/admin" className="flex items-center gap-1.5 text-gray-600 hover:text-[#e5252b] transition pt-1">
+                <span className="material-symbols-rounded text-[18px] text-[#e5252b]">admin_panel_settings</span>
+                <span>{isRu ? "Панель администратора" : "Admin Panel"}</span>
+              </Link>
             </div>
           </div>
 

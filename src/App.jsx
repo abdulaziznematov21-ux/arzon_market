@@ -38,6 +38,7 @@ import {
   Partners,
   OpenPickup,
 } from "./pages/StaticInfo";
+import Admin from "./pages/Admin";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -49,6 +50,20 @@ function ScrollToTop() {
 
 function App() {
   const { isLoginOpen, closeLogin } = useStore();
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+
+  if (isAdmin) {
+    return (
+      <ErrorBoundary>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/*" element={<Admin />} />
+        </Routes>
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-[#f8f9fa] text-[#1e293b]">

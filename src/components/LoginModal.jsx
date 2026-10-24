@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useStore } from "../lib/store";
+import { useOverlay } from "../lib/hooks";
 import { CITIES } from "../lib/data";
 
 // Uzbek Mobile Operators
@@ -41,14 +42,8 @@ export default function LoginModal({ onClose }) {
 
   const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
-  // Lock body scroll while modal is active
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
+  // Lock body scroll and handle ESC key
+  useOverlay(true, onClose);
 
   // Timer countdown for OTP
   useEffect(() => {
@@ -60,15 +55,6 @@ export default function LoginModal({ onClose }) {
     }
     return () => clearInterval(interval);
   }, [step, timer]);
-
-  // Handle ESC key
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   // Clean and format Uzbek phone input
   const handlePhoneChange = (val) => {
@@ -131,6 +117,12 @@ export default function LoginModal({ onClose }) {
     if (authMode === "password") {
       setPassword("password123");
     }
+  };
+
+  const instantLogin = (testPhone, testName, testCity) => {
+    login(testPhone, testName, { city: testCity });
+    toast(`Xush kelibsiz, ${testName}! 👋`);
+    onClose();
   };
 
   // Handle OTP digit changes
@@ -445,17 +437,17 @@ export default function LoginModal({ onClose }) {
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        onClick={() => pickTestAccount("901234567", "Abdulaziz Nematov", "Toshkent")}
-                        className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-red-50 hover:text-[#e5252b] text-[12px] font-bold text-gray-700 transition cursor-pointer border border-gray-200"
+                        onClick={() => instantLogin("901234567", "Abdulaziz Nematov", "Toshkent")}
+                        className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-[#e5252b] text-[12px] font-black transition cursor-pointer border border-red-200"
                       >
-                        ⚡ Abdulaziz (+998 90 123-45-67)
+                        ⚡ Abdulaziz (Darhol kirish)
                       </button>
                       <button
                         type="button"
-                        onClick={() => pickTestAccount("939876543", "Malika Karimova", "Samarqand")}
-                        className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-red-50 hover:text-[#e5252b] text-[12px] font-bold text-gray-700 transition cursor-pointer border border-gray-200"
+                        onClick={() => instantLogin("939876543", "Malika Karimova", "Samarqand")}
+                        className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-[12px] font-bold transition cursor-pointer border border-gray-200"
                       >
-                        ⚡ Malika (+998 93 987-65-43)
+                        ⚡ Malika (Darhol kirish)
                       </button>
                     </div>
                   </div>

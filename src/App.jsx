@@ -16,6 +16,7 @@ import StoreInfoModal from "./components/StoreInfoModal";
 import AiAssistantModal from "./components/AiAssistantModal";
 import FloatingBotWidget from "./components/FloatingBotWidget";
 import MobileBottomNav from "./components/MobileBottomNav";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -54,27 +55,29 @@ function App() {
       <ScrollToTop />
       <Header />
       
-      <main className="flex-1 pb-16 lg:pb-0">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/product/:id" element={<Product />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:id" element={<OrderDetail />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/pickup-points" element={<PickupPoints />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/delivery" element={<DeliveryInfo />} />
-          <Route path="/returns" element={<Returns />} />
-          <Route path="/installment" element={<Installment />} />
-          <Route path="/faq" element={<Faq />} />
-          <Route path="/sell" element={<Sell />} />
-          <Route path="/partners" element={<Partners />} />
-          <Route path="/open-pickup" element={<OpenPickup />} />
-        </Routes>
+      <main className="flex-1 pb-16 md:pb-0">
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/product/:id" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/:id" element={<OrderDetail />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/pickup-points" element={<PickupPoints />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/delivery" element={<DeliveryInfo />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/installment" element={<Installment />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/sell" element={<Sell />} />
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/open-pickup" element={<OpenPickup />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
 
       <Footer />

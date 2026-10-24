@@ -3,6 +3,7 @@ import { useStore } from "../lib/store";
 import { fmt, PROMOS, SOCIAL_LINKS } from "../lib/data";
 import { generateProductSvg } from "../lib/svgGenerator";
 import { TelegramIcon, AiSparkleIcon } from "./SocialIcons";
+import { useOverlay } from "../lib/hooks";
 import { translateProductTitle, translateCategory } from "../lib/translations";
 
 export default function ProductModal() {
@@ -26,29 +27,13 @@ export default function ProductModal() {
   const [copiedCode, setCopiedCode] = useState("");
   const [activeTab, setActiveTab] = useState("specs"); // 'specs' | 'reviews'
 
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") closeProductModal();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closeProductModal]);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (p) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [p]);
+  // Unified overlay hook for scroll lock and Escape
+  useOverlay(Boolean(p), closeProductModal);
 
   if (!p) return null;
 
   const images = p.images && p.images.length > 0 ? p.images : [p.image];
-  const isFav = favs.includes(p.id);
+  const isFav = Boolean(favs && favs.includes(p.id));
 
   const handleCopyPromo = (code) => {
     copyAndApplyPromo(code);
@@ -57,6 +42,7 @@ export default function ProductModal() {
   };
 
   const handleBuyNow = () => {
+    closeProductModal();
     openCheckout({ ...p, qty });
   };
 

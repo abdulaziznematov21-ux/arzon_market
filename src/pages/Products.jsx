@@ -58,6 +58,8 @@ export default function Products() {
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [group]);
 
+  const brandsKey = brands.join(",");
+
   const filtered = useMemo(() => {
     let list = PRODUCTS.filter((p) => {
       if (group && norm(p.group) !== groupNorm && norm(p.category) !== groupNorm) return false;
@@ -76,7 +78,7 @@ export default function Products() {
     else if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     else list = [...list].sort((a, b) => b.reviews - a.reviews);
     return list;
-  }, [group, sub, q, sort, fast, tomorrow, discountOnly, rating4, brands.join(","), min, max]);
+  }, [groupNorm, subNorm, q, sort, fast, tomorrow, discountOnly, rating4, brandsKey, min, max]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const curPage = Math.min(page, pageCount);

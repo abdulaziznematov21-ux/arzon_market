@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useStore } from "../lib/store";
-import { STORE_INFO, SOCIAL_LINKS, PRODUCTS, PROMOS, fmt } from "../lib/data";
+import { STORE_INFO, SOCIAL_LINKS, PRODUCTS, fmt } from "../lib/data";
+import { useOverlay } from "../lib/hooks";
 import { TelegramIcon } from "./SocialIcons";
 
 export default function StoreInfoModal() {
@@ -32,23 +33,13 @@ export default function StoreInfoModal() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useOverlay(isStoreInfoOpen, closeStoreInfo);
+
   useEffect(() => {
     if (isStoreInfoOpen) {
-      document.body.style.overflow = "hidden";
       setTimeout(scrollToBottom, 150);
-    } else {
-      document.body.style.overflow = "unset";
     }
   }, [isStoreInfoOpen, activeTab]);
-
-  // Escape to close
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isStoreInfoOpen) closeStoreInfo();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isStoreInfoOpen, closeStoreInfo]);
 
   if (!isStoreInfoOpen) return null;
 

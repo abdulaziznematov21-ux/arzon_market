@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useStore } from "../lib/store";
-import { PRODUCTS, GROUPS, PROMOS, STORE_INFO, fmt } from "../lib/data";
+import { PRODUCTS, PROMOS, STORE_INFO, fmt } from "../lib/data";
+import { useOverlay } from "../lib/hooks";
 import { translateProductTitle } from "../lib/translations";
 import { AiSparkleIcon } from "./SocialIcons";
 
@@ -52,32 +53,14 @@ export default function AiAssistantModal() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useOverlay(isAiAssistantOpen, closeAiAssistant);
+
   useEffect(() => {
     if (isAiAssistantOpen) {
-      document.body.style.overflow = "hidden";
       setTimeout(scrollToBottom, 150);
-    } else {
-      document.body.style.overflow = "unset";
     }
   }, [isAiAssistantOpen]);
 
-  // Handle initial query if provided when opening modal
-  useEffect(() => {
-    if (isAiAssistantOpen && typeof aiInitialQuery === "string" && aiInitialQuery.trim()) {
-      handleUserSend(aiInitialQuery.trim());
-    }
-  }, [isAiAssistantOpen, aiInitialQuery]);
-
-  // Escape listener
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isAiAssistantOpen) closeAiAssistant();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isAiAssistantOpen, closeAiAssistant]);
-
-  if (!isAiAssistantOpen) return null;
 
   // AI response engine with comprehensive product knowledge
   const generateAiReply = (query) => {
@@ -371,6 +354,15 @@ export default function AiAssistantModal() {
     }
     handleUserSend(chip);
   };
+
+  // Handle initial query if provided when opening modal
+  useEffect(() => {
+    if (isAiAssistantOpen && typeof aiInitialQuery === "string" && aiInitialQuery.trim()) {
+      handleUserSend(aiInitialQuery.trim());
+    }
+  }, [isAiAssistantOpen, aiInitialQuery]);
+
+  if (!isAiAssistantOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6">

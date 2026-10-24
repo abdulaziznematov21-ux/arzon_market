@@ -47,24 +47,24 @@ export default function ArzonLogo({ size = "default", light = false }) {
     ? "w-8 h-8"
     : isLarge
     ? "w-[54px] h-[54px]"
-    : "w-[34px] h-[34px] sm:w-[42px] sm:h-[42px]";
+    : "w-[30px] h-[30px] sm:w-[38px] sm:h-[38px] lg:w-[42px] lg:h-[42px]";
 
   const arzonClass = isSmall
     ? "text-[19px]"
     : isLarge
     ? "text-[32px]"
-    : "text-[21px] sm:text-[26px]";
+    : "text-[19px] sm:text-[23px] lg:text-[26px]";
 
   const marketClass = isSmall
     ? "text-[7.5px]"
     : isLarge
     ? "text-[12.5px]"
-    : "text-[8px] sm:text-[10px]";
+    : "text-[7.5px] sm:text-[9px] lg:text-[10px]";
 
   const redColor = "#e01a22";
 
   return (
-    <div className="flex items-center gap-2 sm:gap-3 select-none shrink-0">
+    <div className="flex items-center gap-1.5 sm:gap-2.5 lg:gap-3 select-none shrink-0">
       <ArzonIcon size={iconSize} className={iconResponsiveClass} />
       <div className="flex flex-col justify-center leading-none">
         <span

@@ -341,9 +341,20 @@ export function StoreProvider({ children }) {
   };
 
   const placeOrder = (customData = {}) => {
-    if (!user) {
-      openLogin("Buyurtmani tasdiqlash uchun hisobingizga kiring!");
-      return null;
+    let currentUser = user;
+    if (!currentUser) {
+      const recipientName = customData.recipient?.trim() || "Xaridor";
+      const userPhone = customData.phone?.trim() || "+998 90 123 45 67";
+      currentUser = {
+        name: recipientName,
+        phone: userPhone,
+        city: city || "Toshkent",
+        address: customData.address || address,
+        avatar: recipientName.charAt(0).toUpperCase() || "X",
+        joined: "Bugun",
+        isVerified: true,
+      };
+      setUser(currentUser);
     }
 
     const id = "AM-" + Math.floor(100000 + Math.random() * 900000);

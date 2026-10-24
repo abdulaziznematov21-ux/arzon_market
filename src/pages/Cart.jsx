@@ -20,8 +20,7 @@ export default function Cart() {
       s.toast(isRu ? "Пожалуйста, выберите товары для оформления заказа" : "Iltimos, buyurtma berish uchun mahsulotni tanlang");
       return;
     }
-    const orderId = s.placeOrder();
-    nav("/orders/" + orderId);
+    s.openCheckout();
   };
 
   if (!s.lines.length) {

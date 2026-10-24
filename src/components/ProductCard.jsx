@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useStore } from "../lib/store";
 import { fmt } from "../lib/data";
 import { generateProductSvg } from "../lib/svgGenerator";

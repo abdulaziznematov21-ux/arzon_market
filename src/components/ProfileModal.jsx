@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useStore } from "../lib/store";
+import { useOverlay } from "../lib/hooks";
 import { CITIES } from "../lib/data";
 
 export default function ProfileModal() {
@@ -30,25 +31,7 @@ export default function ProfileModal() {
     }
   }, [user, city, address]);
 
-  // Lock body scroll while open
-  useEffect(() => {
-    if (!isProfileOpen) return;
-    const original = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = original;
-    };
-  }, [isProfileOpen]);
-
-  // ESC key listener
-  useEffect(() => {
-    if (!isProfileOpen) return;
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") closeProfile();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isProfileOpen, closeProfile]);
+  useOverlay(isProfileOpen, closeProfile);
 
   if (!isProfileOpen || !user) return null;
 

@@ -17,7 +17,7 @@ export default function OrderDetail() {
   const o = s.orders.find((x) => x.id === id);
   if (!o) return <div className="px-4 py-16 sm:p-20 text-center"><div className="text-5xl mb-3">📦</div><h1 className="text-xl font-bold">Buyurtma topilmadi</h1><Link to="/orders" className="inline-block mt-5 bg-[#e5252b] text-white px-6 py-3 rounded-xl">Buyurtmalarimga qaytish</Link></div>;
 
-  const lines = o.items.map((it) => ({ ...it, p: byId(it.id) })).filter((l) => l.p);
+  const lines = (o.items || []).map((it) => ({ ...it, p: byId(it.id) })).filter((l) => l.p);
   const done = o.step >= 4;
 
   return (

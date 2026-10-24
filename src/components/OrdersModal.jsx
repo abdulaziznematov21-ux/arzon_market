@@ -3,6 +3,8 @@ import { useStore } from "../lib/store";
 import { byId, fmt } from "../lib/data";
 import { translateProductTitle } from "../lib/translations";
 
+import { useOverlay } from "../lib/hooks";
+
 const STEPS_UZ = ["Qabul qilindi", "Yig'ilmoqda", "Kuryerga berildi", "Topshirishga tayyor", "Topshirildi"];
 const STEPS_RU = ["Принят", "Собирается", "Передан курьеру", "Готов к выдаче", "Доставлен"];
 
@@ -10,24 +12,7 @@ export default function OrdersModal() {
   const { isOrdersOpen, closeOrders, orders, advance, lang } = useStore();
   const steps = lang === "ru" ? STEPS_RU : STEPS_UZ;
 
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isOrdersOpen) closeOrders();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOrdersOpen, closeOrders]);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOrdersOpen) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOrdersOpen]);
+  useOverlay(isOrdersOpen, closeOrders);
 
   if (!isOrdersOpen) return null;
 
@@ -109,7 +94,7 @@ export default function OrdersModal() {
 
                 {/* Items preview */}
                 <div className="flex gap-2.5 overflow-x-auto py-1">
-                  {o.items.map((it) => {
+                  {(o.items || []).map((it) => {
                     const prod = byId(it.id);
                     if (!prod) return null;
                     const translatedTitle = translateProductTitle(prod.title, lang);

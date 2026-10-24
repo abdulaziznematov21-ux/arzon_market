@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { SOCIAL_LINKS, STORE_INFO } from "../lib/data";
 import { useStore } from "../lib/store";
 import { TelegramIcon, AiSparkleIcon } from "./SocialIcons";
@@ -7,13 +8,24 @@ export default function FloatingBotWidget() {
   const { openStoreInfo, openAiAssistant } = useStore();
   const { telegramBot, aiAssistant } = SOCIAL_LINKS;
   const [isOpen, setIsOpen] = useState(false);
+  const { pathname } = useLocation();
+  const isProductPage = pathname.startsWith("/product/");
 
   return (
-    <div className="fixed bottom-[68px] sm:bottom-5 right-3 sm:right-5 z-40 flex flex-col items-end gap-2.5 select-none">
+    <>
+      {/* Backdrop overlay to dismiss on click outside */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/25 sm:bg-transparent transition-opacity"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <div className={`fixed ${isProductPage ? "bottom-[114px]" : "bottom-[64px]"} sm:bottom-5 right-3 sm:right-5 z-40 flex flex-col items-end gap-2 select-none`}>
       
       {/* Expanded Quick Options Menu */}
       {isOpen && (
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/90 p-3 w-[290px] space-y-2 animate-scale-up mb-1">
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/90 p-3 w-[280px] max-w-[calc(100vw-24px)] space-y-2 animate-scale-up mb-1">
           <div className="flex items-center justify-between pb-2 border-b border-gray-150">
             <div className="text-[12px] font-black text-gray-900 flex items-center gap-1.5">
               <span>🤖</span>
@@ -142,5 +154,6 @@ export default function FloatingBotWidget() {
       </div>
 
     </div>
+    </>
   );
 }

@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { useStore } from "../lib/store";
+import { useOverlay } from "../lib/hooks";
 import { byId, fmt } from "../lib/data";
 import { generateProductSvg } from "../lib/svgGenerator";
 import { translateProductTitle } from "../lib/translations";
@@ -7,35 +7,18 @@ import { translateProductTitle } from "../lib/translations";
 export default function FavoritesDrawer() {
   const { isFavoritesOpen, closeFavorites, favs, toggleFav, add, openProductModal, lang } = useStore();
 
-  // Handle ESC key to close drawer
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isFavoritesOpen) closeFavorites();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFavoritesOpen, closeFavorites]);
-
-  // Lock body scroll when drawer is open
-  useEffect(() => {
-    if (isFavoritesOpen) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isFavoritesOpen]);
+  useOverlay(isFavoritesOpen, closeFavorites);
 
   if (!isFavoritesOpen) return null;
 
-  const favoriteProducts = favs.map((id) => byId(id)).filter(Boolean);
+  const favoriteProducts = (favs || []).map((id) => byId(id)).filter(Boolean);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="fixed inset-0 bg-black/70 backdrop-blur-md animate-fade-in" onClick={closeFavorites} />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 z-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between animate-slide-left">
+        <div className="w-screen max-w-full sm:max-w-md bg-white shadow-2xl flex flex-col justify-between animate-slide-left">
           
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-gray-150 flex items-center justify-between">

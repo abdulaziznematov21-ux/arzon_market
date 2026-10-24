@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useStore } from "../lib/store";
+import { useOverlay } from "../lib/hooks";
 import { fmt, num, CITIES, PROMOS } from "../lib/data";
 import { getCityName } from "../lib/translations";
 
@@ -23,9 +24,9 @@ export default function CheckoutModal() {
   } = useStore();
 
   const [deliveryType, setDeliveryType] = useState("point"); // 'point' | 'courier'
-  const [recipient, setRecipient] = useState(user?.name || "Azizbek Nematov");
-  const [phone, setPhone] = useState(user?.phone || "+998 90 123 45 67");
-  const [userAddress, setUserAddress] = useState(address || "Toshkent sh., Chilonzor 19-mavze, 42-uy");
+  const [recipient, setRecipient] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [userAddress, setUserAddress] = useState(address || "");
   const [payMethod, setPayMethod] = useState("Click"); // 'Click' | 'Payme' | 'Uzum Pay' | 'Naqd'
   const [orderCompleteId, setOrderCompleteId] = useState(null);
 
@@ -34,24 +35,7 @@ export default function CheckoutModal() {
     closeCheckout();
   };
 
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && isCheckoutOpen) handleClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isCheckoutOpen]);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isCheckoutOpen) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isCheckoutOpen]);
+  useOverlay(isCheckoutOpen, handleClose);
 
   if (!isCheckoutOpen) return null;
 
@@ -69,11 +53,13 @@ export default function CheckoutModal() {
 
   const handleSubmitOrder = (e) => {
     e.preventDefault();
+    const finalRecipient = recipient.trim() || user?.name || "Xaridor";
+    const finalPhone = phone.trim() || user?.phone || "+998 (90) 123-45-67";
     const id = placeOrder({
-      address: deliveryType === "point" ? `${city} sh., Arzon Market topshirish punkti #12` : userAddress,
+      address: deliveryType === "point" ? `${city} sh., Arzon Market topshirish punkti #12` : (userAddress.trim() || `${city} sh., Markaziy ko'cha`),
       pay: payMethod,
-      recipient,
-      phone,
+      recipient: finalRecipient,
+      phone: finalPhone,
       fee: currentFee,
     });
     setOrderCompleteId(id);

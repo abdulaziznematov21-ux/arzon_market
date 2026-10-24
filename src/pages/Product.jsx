@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useStore } from "../lib/store";
-import { byId, PRODUCTS, fmt, STORE_INFO } from "../lib/data";
+import { byId, PRODUCTS, fmt } from "../lib/data";
 import { TelegramIcon, AiSparkleIcon } from "../components/SocialIcons";
 import { translateProductTitle, translateCategory, translateBadge } from "../lib/translations";
 

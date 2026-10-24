@@ -56,7 +56,7 @@ export default function Orders() {
 
         <div className="space-y-4">
           {s.orders.map((o) => {
-            const lines = o.items.map((it) => byId(it.id)).filter(Boolean);
+            const lines = (o.items || []).map((it) => byId(it.id)).filter(Boolean);
             const done = o.step >= 4;
 
             return (
